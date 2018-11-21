@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2026
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Genetic2DAlgorithm", "Genetic2DAlgorithm\Genetic2DAlgorithm.csproj", "{9F5895DB-B70F-4812-AC0D-7D47E1C15E01}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F5895DB-B70F-4812-AC0D-7D47E1C15E01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F5895DB-B70F-4812-AC0D-7D47E1C15E01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F5895DB-B70F-4812-AC0D-7D47E1C15E01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F5895DB-B70F-4812-AC0D-7D47E1C15E01}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3468B89B-2A31-433B-9FBA-9298E1175F7A}
+	EndGlobalSection
+EndGlobal
