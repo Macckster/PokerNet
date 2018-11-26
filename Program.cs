@@ -14,14 +14,13 @@ namespace TheGame
 
             int[] playerBalance = { 100,100,100, 100 };
             int[] playerBet = new int[4];
-            bool[] isPlayerOut = new bool[4];
 
             int dealer = 0;
             int bigBlindBet = 0;
 
-            int[] players;
-
             int LastRaiseIndex = 0;
+
+            int[] playerIndexArray = {0, 1, 2, 3};
             
             int highestCurrentBet;
             bool allowHigherBet = true;
@@ -35,19 +34,19 @@ namespace TheGame
             //The most boring expression ever, also remember to remove this 
             string[] board = new string[7];
 
-            while (true)
+            for(int h = 0; h < 10; h++)
             {
+                dealer++;
                 allowHigherBet = true;
                 playerBet = new int[playerBet.Length];
-                isPlayerOut = new bool[isPlayerOut.Length];
                 moneyPool = 0;
-                players = GetPlayers(playerBalance);
+                playerIndexArray = GetPlayers(playerBalance);
 
-                bigBlindBet = Math.Min(playerBalance[(dealer + 2) % players.Length], 2);
+                bigBlindBet = Math.Min(playerBalance[playerIndexArray[(dealer + 2) % playerIndexArray.Length]], 2);
                 moneyPool += bigBlindBet + 1;
 
-                playerBalance[(dealer + 1) % players.Length] -= 1;
-                playerBalance[(dealer + 2) % players.Length] -= bigBlindBet;
+                playerBalance[playerIndexArray[(dealer + 1) % playerIndexArray.Length]] -= 1;
+                playerBalance[playerIndexArray[(dealer + 2) % playerIndexArray.Length]] -= bigBlindBet;
 
                 highestCurrentBet = bigBlindBet;
 
@@ -55,48 +54,59 @@ namespace TheGame
                 //Round for loop
                 for (i = 0; i < 4; i++)
                 {
-                    LastRaiseIndex = (dealer + 2) % 4;
-                    if(i == 1)
+                    LastRaiseIndex = (dealer + 2) % playerIndexArray.Length;
+                    if (i == 1)
                     {
                         //Add two cards
                     }
-                    else if(i == 2)
+                    else if (i == 2)
                     {
                         //add one card
                     }
-                    else if(i == 3)
+                    else if (i == 3)
                     {
                         //Add one card
                     }
-                    
-                    for (j = (dealer + 3) % players.Length; true; j++)
+
+                    for (j = (dealer + 3) % playerIndexArray.Length; true; j++)
                     {
-                        PlayerIndex = j % players.Length;
-                        if(!isPlayerOut[PlayerIndex])
+                        PlayerIndex = j % playerIndexArray.Length;
+                        if (playerBet[playerBet[PlayerIndex]] != -1)
                         {
                             if (LastRaiseIndex == PlayerIndex)
                                 break;
 
                             //Get bet from index
                             bet = GetBet();
-                            if (!allowHigherBet)
-                                bet = highestCurrentBet;
 
-                            if(bet >= highestCurrentBet)
+                            if (bet <= playerBalance[playerIndexArray[PlayerIndex]])
                             {
-                                playerBet[playerBet] = bet;
-                                playerBalance[PlayerIndex] -= bet;
-                                allowHigherBet = (playerBalance[PlayerIndex] != 0); 
-                                moneyPool += bet;
-                                if (bet > highestCurrentBet)
+                                if (!allowHigherBet)
+                                    bet = highestCurrentBet;
+
+                                if (bet >= highestCurrentBet)
                                 {
-                                    highestCurrentBet = bet;
-                                    LastRaiseIndex = PlayerIndex;
+                                    playerBet[playerIndexArray[playerBet]] = bet;
+                                    playerBalance[playerIndexArray[PlayerIndex]] -= bet;
+                                    allowHigherBet = (playerBalance[playerIndexArray[PlayerIndex]] != 0);
+                                    moneyPool += bet;
+                                    if (bet > highestCurrentBet)
+                                    {
+                                        highestCurrentBet = bet;
+                                        LastRaiseIndex = PlayerIndex;
+                                    }
                                 }
+                                else
+                                {
+                                    playerBet[playerIndexArray[PlayerIndex]] = -1;
+                                    playerCount--;
+                                }
+
                             }
                             else
                             {
-                                isPlayerOut[PlayerIndex] = true;
+                                playerBet[playerIndexArray[PlayerIndex]] = -1;
+                                playerCount--;
                             }
                         }
                     }
