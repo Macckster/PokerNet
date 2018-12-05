@@ -73,23 +73,7 @@ public class Card
             deck.Add(Cards[card]);
         }
 
-        return deck;
-    }
-
-    public static List<Card> Shuffle(List<Card> cards)
-    {
-        System.Random rng = new System.Random();
-
-        int n = cards.Count;
-        while (n > 1)
-        {
-            int k = rng.Next(n--);
-            Card temp = cards[n];
-            cards[n] = cards[k];
-            cards[k] = temp;
-        }
-
-        return cards;
+        return deck.Shuffle();
     }
 
     public enum CardSuit
