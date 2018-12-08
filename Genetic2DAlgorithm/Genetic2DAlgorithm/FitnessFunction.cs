@@ -163,10 +163,20 @@ namespace cardOddsSimulator
         //    }
         //}
 
-        static void PlayRounds(double[][][] players)
+        public static void PlayRounds(/*double[][][] players*/)
         {
             List<Card> board = new List<Card>();
-            List<Card> deck = new List<Card>();
+            List<Card> deck = CreateDeckList();
+
+            Card[][] playerCards = new Card[4][];
+
+            for (int k = 0; k < 4; k++)
+            {
+                playerCards[k] = new Card[2];
+                playerCards[k][0] = DrawCardFormDeckList(ref deck);
+                playerCards[k][1] = DrawCardFormDeckList(ref deck);
+            }
+
             int moneyPool = 0;
 
             int[] playerBalance = { 100, 100, 100, 100 };
@@ -211,29 +221,40 @@ namespace cardOddsSimulator
                 //Round for loop
                 for (i = 0; i < 4; i++)
                 {
+                    if (playerCount == 1)
+                        break;
                     LastRaiseIndex = (dealer + 2) % playerIndexArray.Length;
                     if (i == 1)
                     {
-                        
-                        //Add three cards
+                        for (int g = 0; g < 3; g++)
+                        {
+                            board.Add(DrawCardFormDeckList(ref deck));
+                        }
                     }
                     else if (i == 2)
                     {
-                        //add one card
+                        board.Add(DrawCardFormDeckList(ref deck));
                     }
                     else if (i == 3)
                     {
-                        //Add one card
+                        board.Add(DrawCardFormDeckList(ref deck));
                     }
-
+                    bool ignoreLastRaiseIndex = true;
                     for (j = (dealer + 3) % playerIndexArray.Length; true; j++)
                     {
                         PlayerIndex = j % playerIndexArray.Length;
-                        if (playerBet[playerBet[PlayerIndex]] != -1)
-                        {
-                            if (LastRaiseIndex == PlayerIndex)
-                                break;
 
+                        if (LastRaiseIndex == PlayerIndex)
+                            if (!ignoreLastRaiseIndex)
+                                break;
+                            else
+                            {
+                                ignoreLastRaiseIndex = false;
+                                LastRaiseIndex = (dealer + 3) % playerIndexArray.Length;
+                            }
+
+                        if (playerBet[playerIndexArray[PlayerIndex]] != -1)
+                        {
                             //Get bet from index
                             bet = GetBet();
 
@@ -252,6 +273,7 @@ namespace cardOddsSimulator
                                     {
                                         highestCurrentBet = bet;
                                         LastRaiseIndex = PlayerIndex;
+                                        ignoreLastRaiseIndex = false;
                                     }
                                 }
                                 else
@@ -269,15 +291,38 @@ namespace cardOddsSimulator
                         }
                     }
                 }
+                List<int> indexToGive = new List<int>{0};
+                int bestScore = -1;
+                for (int k = 0; k < playerIndexArray.Length; k++)
+                {
+                    if(playerBet[playerIndexArray[k]] != -1)
+                    {
+                        List<Card> plaCards = board;
+                        plaCards.AddRange(playerCards[playerIndexArray[k]]);
+                        int fitness = Fitness(plaCards.ToArray());
+                        if (fitness > bestScore)
+                        {
+                            indexToGive.Clear();
+                            indexToGive.Add(playerIndexArray[k]);
+                            bestScore = fitness;
+                        }
+                        else if (fitness == bestScore)
+                            indexToGive.Add(playerIndexArray[k]);
+                    }
+                }
 
-                //GIVE THE CASH
+                foreach (var item in indexToGive)
+                {
+                    playerBalance[item] += moneyPool / indexToGive.Count;
+                }
             }
         }
 
         static int GetBet()
         {
-            return 420691337;
+            return int.Parse(Console.ReadLine());
         }
+        
 
         static int[] GetPlayers(int[] playerBalance)
         {

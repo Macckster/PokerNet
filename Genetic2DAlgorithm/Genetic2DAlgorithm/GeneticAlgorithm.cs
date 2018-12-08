@@ -7,6 +7,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.IO;
 using PokerNet;
+using cardOddsSimulator;
 
 namespace Genetic2DAlgorithm
 {
@@ -43,29 +44,30 @@ namespace Genetic2DAlgorithm
 
         static void Main(string[] args)
         {
-            //temp = DeSerializePlayer("C:\\GymnasieProjekt\\test2.txt");//GeneratePopulation(1, 5, 5, 3, 1, -100, 100)[0];
-            InstantiateDynamicArrays();
-            double[][][] pop;
-            double[][] best = null;//DeSerializePlayer("C:\\GymnasieProjekt\\test1.txt");
-            for (int i = 0; i < 100000; i++)
-            {
+            FitnessFunction.PlayRounds();
+            ////temp = DeSerializePlayer("C:\\GymnasieProjekt\\test2.txt");//GeneratePopulation(1, 5, 5, 3, 1, -100, 100)[0];
+            //InstantiateDynamicArrays();
+            //double[][][] pop;
+            //double[][] best = null;//DeSerializePlayer("C:\\GymnasieProjekt\\test1.txt");
+            //for (int i = 0; i < 100000; i++)
+            //{
 
-                pop = EvolveWithIslandClustersThreaded(1000, 10, 100, 500, FitnessFunctionTemp, best);//här
+            //    pop = EvolveWithIslandClustersThreaded(1000, 10, 100, 500, FitnessFunctionTemp, best);//här
 
-                if (true)//i % 50 == 0)
-                {
-                    double[] fitness = FitnessFunctionTemp(pop);
-                    best = FindBestPlayer(pop, fitness);
-                    SerializePlayer(best, "C:\\GymnasieProjekt\\test1.txt");
-                    double bestFitness = 0;
-                    for (int e = 0; e < fitness.Length; e++)
-                    {
-                        bestFitness = Math.Max(fitness[e], bestFitness);
-                    }
+            //    if (true)//i % 50 == 0)
+            //    {
+            //        double[] fitness = FitnessFunctionTemp(pop);
+            //        best = FindBestPlayer(pop, fitness);
+            //        SerializePlayer(best, "C:\\GymnasieProjekt\\test1.txt");
+            //        double bestFitness = 0;
+            //        for (int e = 0; e < fitness.Length; e++)
+            //        {
+            //            bestFitness = Math.Max(fitness[e], bestFitness);
+            //        }
 
-                    //Console.WriteLine((-(bestFitness - 8000)).ToString() + " : " + (-(bestFitness - 8000)/connections).ToString());
-                }
-            }
+            //        //Console.WriteLine((-(bestFitness - 8000)).ToString() + " : " + (-(bestFitness - 8000)/connections).ToString());
+            //    }
+            //}
         }
 
         static void InstantiateDynamicArrays()
