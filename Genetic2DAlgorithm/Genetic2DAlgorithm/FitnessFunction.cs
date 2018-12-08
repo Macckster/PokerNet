@@ -149,22 +149,24 @@ namespace cardOddsSimulator
         //     //}
         //}
 
-        static int[] TrueFitness(double[][][] population)
-        {
-            int[] fitness = new int[population.Length];
-            double[][][] evalPop = new double[4][][];
-            for (int i = 0; i < population.Length; i = i + 4)
-            {
-                for (int j = 0; j < 4; j++)
-                {
-                    evalPop[j] = population[i + j];
-                }
+        //static int[] TrueFitness(double[][][] population)
+        //{
+        //    int[] fitness = new int[population.Length];
+        //    double[][][] evalPop = new double[4][][];
+        //    for (int i = 0; i < population.Length; i = i + 4)
+        //    {
+        //        for (int j = 0; j < 4; j++)
+        //        {
+        //            evalPop[j] = population[i + j];
+        //        }
 
-            }
-        }
+        //    }
+        //}
 
         static void PlayRounds(double[][][] players)
         {
+            List<Card> board = new List<Card>();
+            List<Card> deck = new List<Card>();
             int moneyPool = 0;
 
             int[] playerBalance = { 100, 100, 100, 100 };
@@ -188,8 +190,6 @@ namespace cardOddsSimulator
 
             int i;
             int j;
-            //The most boring expression ever, also remember to remove this 
-            string[] board = new string[7];
 
             for (int h = 0; h < 10; h++)
             {
@@ -214,7 +214,8 @@ namespace cardOddsSimulator
                     LastRaiseIndex = (dealer + 2) % playerIndexArray.Length;
                     if (i == 1)
                     {
-                        //Add two cards
+                        
+                        //Add three cards
                     }
                     else if (i == 2)
                     {
