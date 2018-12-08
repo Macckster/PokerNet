@@ -13,6 +13,12 @@
 *.userprefs
 
 # Build results
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+Assets/AssetStoreTools*
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -84,6 +90,9 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
+*.pidb.meta
+*.pdb.meta
+*.meta
 
 # Chutzpah Test files
 _Chutzpah*
