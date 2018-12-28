@@ -39,7 +39,7 @@ namespace Genetic2DAlgorithm
 
         
 
-        static void Main(string[] args)
+        static void geain(string[] args)
         {
             FitnessFunction.InstantiateDynamicArrays();
             FitnessFunction.PlayRounds();

@@ -628,7 +628,6 @@ namespace cardOddsSimulator
         /// <returns></returns>
         static int Fitness(Card[] cards)
         {
-
             int highestCard = GetHighestCard(cards);
 
             if (RoyalFlush(cards))
@@ -883,9 +882,9 @@ namespace cardOddsSimulator
                             cardB = c;
                             if (valueA == 0)
                                 valueA = cardA.denomination;
-
-                            if (valueA != 0 && valueB == 0)
+                            else if (valueB == 0)
                                 valueB = cardA.denomination;
+
                             counter++;
                         }
                     }
