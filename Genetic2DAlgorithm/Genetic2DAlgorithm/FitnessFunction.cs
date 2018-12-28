@@ -163,19 +163,94 @@ namespace cardOddsSimulator
         //    }
         //}
 
-        public static void PlayRounds(/*double[][][] players*/)
+        static byte[][] knownCards2Chance;
+        static byte[][][][][] knownCards5Chance;
+        static byte[][][][][][] knownCards6Chance;
+        static byte[][][][][][][] knownCards7Chance;
+
+        public static void InstantiateDynamicArrays()
+        {
+            knownCards2Chance = new byte[51][];
+            for (int i = 0; i < knownCards2Chance.Length; i++)
+            {
+                knownCards2Chance[i] = new byte[51 - i];
+            }
+
+            knownCards5Chance = new byte[48][][][][];
+            for (int i = 0; i < knownCards5Chance.Length; i++)
+            {
+                knownCards5Chance[i] = new byte[48 - i][][][];
+                for (int j = 0; j < knownCards5Chance[i].Length; j++)
+                {
+                    knownCards5Chance[i][j] = new byte[48 - i - j][][];
+                    for (int k = 0; k < knownCards5Chance[i][j].Length; k++)
+                    {
+                        knownCards5Chance[i][j][k] = new byte[48 - i - j - k][];
+                        for (int l = 0; l < knownCards5Chance[i][j][k].Length; l++)
+                        {
+                            knownCards5Chance[i][j][k][l] = new byte[48 - i - j - k - l];
+                        }
+                    }
+                }
+            }
+            int d = 0;
+            knownCards6Chance = new byte[47][][][][][];
+            for (int i = 0; i < knownCards6Chance.Length; i++)
+            {
+                knownCards6Chance[i] = new byte[47 - i][][][][];
+                for (int j = 0; j < knownCards6Chance[i].Length; j++)
+                {
+                    knownCards6Chance[i][j] = new byte[47 - i - j][][][];
+                    for (int k = 0; k < knownCards6Chance[i][j].Length; k++)
+                    {
+                        knownCards6Chance[i][j][k] = new byte[47 - i - j - k][][];
+                        for (int l = 0; l < knownCards6Chance[i][j][k].Length; l++)
+                        {
+                            knownCards6Chance[i][j][k][l] = new byte[47 - i - j - k - l][];
+                            for (int m = 0; m < knownCards6Chance[i][j][k][l].Length; m++)
+                            {
+                                knownCards6Chance[i][j][k][l][m] = new byte[47 - i - j - k - l - m];
+
+                            }
+                        }
+                    }
+                }
+            }
+
+            knownCards7Chance = new byte[46][][][][][][];
+            for (int i = 0; i < knownCards7Chance.Length; i++)
+            {
+                knownCards7Chance[i] = new byte[46 - i][][][][][];
+                for (int j = 0; j < knownCards7Chance[i].Length; j++)
+                {
+                    knownCards7Chance[i][j] = new byte[46 - i - j][][][][];
+                    for (int k = 0; k < knownCards7Chance[i][j].Length; k++)
+                    {
+                        knownCards7Chance[i][j][k] = new byte[46 - i - j - k][][][];
+                        for (int l = 0; l < knownCards7Chance[i][j][k].Length; l++)
+                        {
+                            knownCards7Chance[i][j][k][l] = new byte[46 - i - j - k - l][][];
+                            for (int m = 0; m < knownCards7Chance[i][j][k][l].Length; m++)
+                            {
+                                knownCards7Chance[i][j][k][l][m] = new byte[46 - i - j - k - l - m][];
+                                for (int n = 0; n < knownCards7Chance[i][j][k][l][m].Length; n++)
+                                {
+                                    knownCards7Chance[i][j][k][l][m][n] = new byte[46 - i - j - k - l - m - n];
+                                    d += knownCards7Chance[i][j][k][l][m][n].Length;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public static int[] PlayRounds(/*double[][][] networks*/)
         {
             List<Card> board = new List<Card>();
             List<Card> deck = CreateDeckList();
 
             Card[][] playerCards = new Card[4][];
-
-            for (int k = 0; k < 4; k++)
-            {
-                playerCards[k] = new Card[2];
-                playerCards[k][0] = DrawCardFormDeckList(ref deck);
-                playerCards[k][1] = DrawCardFormDeckList(ref deck);
-            }
 
             int moneyPool = 0;
 
@@ -201,8 +276,10 @@ namespace cardOddsSimulator
             int i;
             int j;
 
-            for (int h = 0; h < 10; h++)
+            for (int h = 0; h < 100000; h++)
             {
+                playerCount = 4;
+                deck = CreateDeckList();
                 dealer++;
                 allowHigherBet = true;
                 playerBet = new int[playerBet.Length];
@@ -217,6 +294,12 @@ namespace cardOddsSimulator
 
                 highestCurrentBet = bigBlindBet;
 
+                for (int k = 0; k < 4; k++)
+                {
+                    playerCards[k] = new Card[2];
+                    playerCards[k][0] = DrawCardFormDeckList(ref deck);
+                    playerCards[k][1] = DrawCardFormDeckList(ref deck);
+                }
 
                 //Round for loop
                 for (i = 0; i < 4; i++)
@@ -256,19 +339,19 @@ namespace cardOddsSimulator
                         if (playerBet[playerIndexArray[PlayerIndex]] != -1)
                         {
                             //Get bet from index
-                            bet = GetBet();
+                            bet = GetBet(/*networks[playerIndexArray[PlayerIndex]], playerBalance[playerIndexArray[PlayerIndex]],*/ board.ToArray(), playerCards[playerIndexArray[PlayerIndex]]);
 
                             if (bet <= playerBalance[playerIndexArray[PlayerIndex]])
                             {
                                 if (!allowHigherBet)
                                     bet = highestCurrentBet;
 
-                                if (bet >= highestCurrentBet)
+                                if (bet >= highestCurrentBet)//GRAAAGAGAH!!!!
                                 {
+                                    moneyPool += bet - playerBet[playerIndexArray[PlayerIndex]];
                                     playerBet[playerIndexArray[PlayerIndex]] = bet;
-                                    playerBalance[playerIndexArray[PlayerIndex]] -= bet;
+                                    //playerBalance[playerIndexArray[PlayerIndex]] -= bet;//FIXXXXX!
                                     allowHigherBet = (playerBalance[playerIndexArray[PlayerIndex]] != 0);
-                                    moneyPool += bet;
                                     if (bet > highestCurrentBet)
                                     {
                                         highestCurrentBet = bet;
@@ -297,7 +380,7 @@ namespace cardOddsSimulator
                 {
                     if(playerBet[playerIndexArray[k]] != -1)
                     {
-                        List<Card> plaCards = board;
+                        List<Card> plaCards = new List<Card>(board);
                         plaCards.AddRange(playerCards[playerIndexArray[k]]);
                         int fitness = Fitness(plaCards.ToArray());
                         if (fitness > bestScore)
@@ -316,13 +399,45 @@ namespace cardOddsSimulator
                     playerBalance[item] += moneyPool / indexToGive.Count;
                 }
             }
+
+            return playerBalance;
         }
 
-        static int GetBet()
+        static int GetBet(/*double[][] player, int balance, */Card[] b, Card[] p)
         {
-            return int.Parse(Console.ReadLine());
+            List<Card> cards = new List<Card>(b);
+            cards.AddRange(p);
+            cards.Sort(delegate (Card c1, Card c2) { return c1.id - c2.id; });
+            double winChance = ChanceOfWin(cards.ToArray());
+            //bool isPlayer = true;
+            //for (int i = 0; i < player.Length / 2; i++)
+            //{
+            //    if (player[i][0] != 0)
+            //        isPlayer = false;
+            //}
+            //if(isPlayer)
+            //    return int.Parse(Console.ReadLine());
+            //else
+            //{
+
+            //}
+            return 2;
         }
-        
+
+        static double ChanceOfWin(Card[] cards)
+        {
+            int i = 0;
+            if (cards.Length == 2)
+                i = knownCards2Chance[cards[0].id][cards[1].id - cards[0].id - 1];
+            else if (cards.Length == 5)
+                i = knownCards5Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1];
+            else if (cards.Length == 6)
+                i = knownCards6Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1];
+            else if (cards.Length == 7)
+                i = knownCards7Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1][cards[6].id - cards[5].id - 1];
+
+            return 0.0;
+        }
 
         static int[] GetPlayers(int[] playerBalance)
         {

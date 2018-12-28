@@ -37,13 +37,11 @@ namespace Genetic2DAlgorithm
 
         static double[][] temp;
 
-        static byte[][] knownCards2Chance;
-        static byte[][][][][] knownCards5Chance;
-        static byte[][][][][][] knownCards6Chance;
-        static byte[][][][][][][] knownCards7Chance;
+        
 
         static void Main(string[] args)
         {
+            FitnessFunction.InstantiateDynamicArrays();
             FitnessFunction.PlayRounds();
             ////temp = DeSerializePlayer("C:\\GymnasieProjekt\\test2.txt");//GeneratePopulation(1, 5, 5, 3, 1, -100, 100)[0];
             //InstantiateDynamicArrays();
@@ -70,82 +68,7 @@ namespace Genetic2DAlgorithm
             //}
         }
 
-        static void InstantiateDynamicArrays()
-        {
-            knownCards2Chance = new byte[51][];
-            for (int i = 0; i < knownCards2Chance.Length; i++)
-            {
-                knownCards2Chance[i] = new byte[51 - i];
-            }
-
-            knownCards5Chance = new byte[48][][][][];
-            for (int i = 0; i < knownCards5Chance.Length; i++)
-            {
-                knownCards5Chance[i] = new byte[48 - i][][][];
-                for (int j = 0; j < knownCards5Chance[i].Length; j++)
-                {
-                    knownCards5Chance[i][j] = new byte[48 - i - j][][];
-                    for (int k = 0; k < knownCards5Chance[i][j].Length; k++)
-                    {
-                        knownCards5Chance[i][j][k] = new byte[48 - i - j - k][];
-                        for (int l = 0; l < knownCards5Chance[i][j][k].Length; l++)
-                        {
-                            knownCards5Chance[i][j][k][l] = new byte[48 - i - j - k - l];
-                        }
-                    }
-                }
-            }
-            int d = 0;
-            knownCards6Chance = new byte[47][][][][][];
-            for (int i = 0; i < knownCards6Chance.Length; i++)
-            {
-                knownCards6Chance[i] = new byte[47 - i][][][][];
-                for (int j = 0; j < knownCards6Chance[i].Length; j++)
-                {
-                    knownCards6Chance[i][j] = new byte[47 - i - j][][][];
-                    for (int k = 0; k < knownCards6Chance[i][j].Length; k++)
-                    {
-                        knownCards6Chance[i][j][k] = new byte[47 - i - j - k][][];
-                        for (int l = 0; l < knownCards6Chance[i][j][k].Length; l++)
-                        {
-                            knownCards6Chance[i][j][k][l] = new byte[47 - i - j - k - l][];
-                            for (int m = 0; m < knownCards6Chance[i][j][k][l].Length; m++)
-                            {
-                                knownCards6Chance[i][j][k][l][m] = new byte[47 - i - j - k - l - m];
-                                
-                            }
-                        }
-                    }
-                }
-            }
-
-            knownCards7Chance = new byte[46][][][][][][];
-            for (int i = 0; i < knownCards7Chance.Length; i++)
-            {
-                knownCards7Chance[i] = new byte[46 - i][][][][][];
-                for (int j = 0; j < knownCards7Chance[i].Length; j++)
-                {
-                    knownCards7Chance[i][j] = new byte[46 - i - j][][][][];
-                    for (int k = 0; k < knownCards7Chance[i][j].Length; k++)
-                    {
-                        knownCards7Chance[i][j][k] = new byte[46 - i - j - k][][][];
-                        for (int l = 0; l < knownCards7Chance[i][j][k].Length; l++)
-                        {
-                            knownCards7Chance[i][j][k][l] = new byte[46 - i - j - k - l][][];
-                            for (int m = 0; m < knownCards7Chance[i][j][k][l].Length; m++)
-                            {
-                                knownCards7Chance[i][j][k][l][m] = new byte[46 - i - j - k - l - m][];
-                                for (int n = 0; n < knownCards7Chance[i][j][k][l][m].Length; n++)
-                                {
-                                    knownCards7Chance[i][j][k][l][m][n] = new byte[46 - i - j - k - l - m - n];
-                                    d += knownCards7Chance[i][j][k][l][m][n].Length;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
 
         /// <summary>
         /// Serializes a player to text format
