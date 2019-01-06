@@ -13,7 +13,7 @@ namespace Genetic2DAlgorithm
 {
     public static class StaticRandom//Thread friendly random
     {
-        static int seed = Environment.TickCount;
+        static int seed = 0;
 
         static readonly ThreadLocal<Random> random =
             new ThreadLocal<Random>(() => new Random(Interlocked.Increment(ref seed)));
@@ -39,7 +39,7 @@ namespace Genetic2DAlgorithm
 
         
 
-        static void geain(string[] args)
+        static void Main(string[] args)
         {
             FitnessFunction.InstantiateDynamicArrays();
             FitnessFunction.PlayRounds();

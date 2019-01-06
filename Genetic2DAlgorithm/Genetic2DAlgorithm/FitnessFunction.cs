@@ -287,6 +287,8 @@ namespace cardOddsSimulator
                 playerIndexArray = GetPlayers(playerBalance);
 
                 bigBlindBet = Math.Min(playerBalance[playerIndexArray[(dealer + 2) % playerIndexArray.Length]], 2);
+                playerBet[playerIndexArray[(dealer + 2) % playerIndexArray.Length]] = bigBlindBet;
+                playerBet[playerIndexArray[(dealer + 1) % playerIndexArray.Length]] = 1;
                 moneyPool += bigBlindBet + 1;
 
                 playerBalance[playerIndexArray[(dealer + 1) % playerIndexArray.Length]] -= 1;
@@ -339,7 +341,9 @@ namespace cardOddsSimulator
                         if (playerBet[playerIndexArray[PlayerIndex]] != -1)
                         {
                             //Get bet from index
-                            bet = GetBet(/*networks[playerIndexArray[PlayerIndex]], playerBalance[playerIndexArray[PlayerIndex]],*/ board.ToArray(), playerCards[playerIndexArray[PlayerIndex]]);
+                            bet = GetBet(
+                                /*networks[playerIndexArray[PlayerIndex]], playerBalance[playerIndexArray[PlayerIndex]],*/ 
+                                board.ToArray(), playerCards[playerIndexArray[PlayerIndex]]);
 
                             if (bet <= playerBalance[playerIndexArray[PlayerIndex]])
                             {
@@ -349,8 +353,8 @@ namespace cardOddsSimulator
                                 if (bet >= highestCurrentBet)//GRAAAGAGAH!!!!
                                 {
                                     moneyPool += bet - playerBet[playerIndexArray[PlayerIndex]];
+                                    playerBalance[playerIndexArray[PlayerIndex]] -= bet - playerBet[playerIndexArray[PlayerIndex]];//FIXXXXX!
                                     playerBet[playerIndexArray[PlayerIndex]] = bet;
-                                    //playerBalance[playerIndexArray[PlayerIndex]] -= bet;//FIXXXXX!
                                     allowHigherBet = (playerBalance[playerIndexArray[PlayerIndex]] != 0);
                                     if (bet > highestCurrentBet)
                                     {
@@ -380,7 +384,8 @@ namespace cardOddsSimulator
                 {
                     if(playerBet[playerIndexArray[k]] != -1)
                     {
-                        List<Card> plaCards = new List<Card>(board);
+                        List<Card> plaCards = new List<Card>();
+                        plaCards.AddRange(board);
                         plaCards.AddRange(playerCards[playerIndexArray[k]]);
                         int fitness = Fitness(plaCards.ToArray());
                         if (fitness > bestScore)
@@ -403,7 +408,7 @@ namespace cardOddsSimulator
             return playerBalance;
         }
 
-        static int GetBet(/*double[][] player, int balance, */Card[] b, Card[] p)
+        static int GetBet(/*double[][] player, int balance, */Card[] b, Card[] p, int bet, int playerCount, int round, int highBet)
         {
             List<Card> cards = new List<Card>(b);
             cards.AddRange(p);
@@ -435,8 +440,20 @@ namespace cardOddsSimulator
                 i = knownCards6Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1];
             else if (cards.Length == 7)
                 i = knownCards7Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1][cards[6].id - cards[5].id - 1];
-
-            return 0.0;
+            if(i - 1 == -1)
+            {
+                byte wins = (byte)(SimulateChanceOfWinning(cards) + 1);
+                if (cards.Length == 2)
+                    knownCards2Chance[cards[0].id][cards[1].id - cards[0].id - 1] = wins;
+                else if (cards.Length == 5)
+                    knownCards5Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1] = wins;
+                else if (cards.Length == 6)
+                    knownCards6Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1] = wins;
+                else if (cards.Length == 7)
+                    knownCards7Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1][cards[6].id - cards[5].id - 1] = wins;
+                return (wins - 1) / games;
+            }
+            return (i - 1) / games;
         }
 
         static int[] GetPlayers(int[] playerBalance)
@@ -469,7 +486,7 @@ namespace cardOddsSimulator
             return s;
         }
 
-        static double SimulateChanceOfWinning(Card[] cards)
+        static int SimulateChanceOfWinning(Card[] cards)
         {
             int wins = 0;
             Card[][] players = new Card[4][];
@@ -526,7 +543,7 @@ namespace cardOddsSimulator
                 if (win)
                     wins++;
             }
-            return (double)wins / games;
+            return wins;// / games;
         }
 
         static Card DrawCardFormDeckList(ref List<Card> deck)
