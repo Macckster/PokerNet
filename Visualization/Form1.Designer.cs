@@ -40,6 +40,7 @@
             this.PlayerCardsLbl = new System.Windows.Forms.Label();
             this.ComCardsLbl = new System.Windows.Forms.Label();
             this.TestBet = new System.Windows.Forms.Button();
+            this.next = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCardOne)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCardTwo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CommunityOne)).BeginInit();
@@ -119,7 +120,7 @@
             // 
             this.LogWindow.Location = new System.Drawing.Point(794, 12);
             this.LogWindow.Name = "LogWindow";
-            this.LogWindow.Size = new System.Drawing.Size(199, 426);
+            this.LogWindow.Size = new System.Drawing.Size(247, 426);
             this.LogWindow.TabIndex = 8;
             this.LogWindow.Text = "";
             // 
@@ -155,11 +156,23 @@
             this.TestBet.UseVisualStyleBackColor = true;
             this.TestBet.Click += new System.EventHandler(this.TestBet_Click);
             // 
+            // next
+            // 
+            this.next.Location = new System.Drawing.Point(713, 136);
+            this.next.Name = "next";
+            this.next.Size = new System.Drawing.Size(75, 56);
+            this.next.TabIndex = 12;
+            this.next.Text = "Next";
+            this.next.UseVisualStyleBackColor = true;
+            this.next.Visible = false;
+            this.next.Click += new System.EventHandler(this.next_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1005, 450);
+            this.ClientSize = new System.Drawing.Size(1053, 450);
+            this.Controls.Add(this.next);
             this.Controls.Add(this.TestBet);
             this.Controls.Add(this.ComCardsLbl);
             this.Controls.Add(this.PlayerCardsLbl);
@@ -200,6 +213,7 @@
         private System.Windows.Forms.Label PlayerCardsLbl;
         private System.Windows.Forms.Label ComCardsLbl;
         private System.Windows.Forms.Button TestBet;
+        private System.Windows.Forms.Button next;
     }
 }
 

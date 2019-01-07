@@ -29,6 +29,18 @@ namespace Visualization
         int pool = 0;
         int lastDealer = -1;
 
+        bool flop, turn, river, betting, compare;
+
+        int startBet = -1;
+        bool first;
+
+        bool gameWon = false;
+
+        int[] bets =
+        {
+                0,0,0,0
+        };
+
         public Form1()
         {
             //weights = GetWeights(weightsPath);
@@ -38,11 +50,12 @@ namespace Visualization
         private void Testbtn_Click(object sender, EventArgs e)
         {
             d.cards = Deck.GenerateDeck();
-            PreFlop();
+            Run();
         }
 
         void Run()
         {
+            flop = turn = river = false;
             PreFlop();
         }
 
@@ -88,9 +101,16 @@ namespace Visualization
 
             int FirstPlayer = (bigBlind + 1) % Balance.Count;
 
-            Log("First Betting Round starting on player {0} {(1)}", FirstPlayer, FirstPlayer == 0 ? "You" : "AI");
+            Log("First Betting Round starting on player {0} ({1})", FirstPlayer, FirstPlayer == 0 ? "You" : "AI");
 
-            BettingRound(FirstPlayer, true);
+            flop = turn = river = betting = false;
+            flop = true;
+            betting = true;
+
+            first = true;
+            startBet = FirstPlayer;
+
+            next.Visible = true;
         }
 
         public void Flop()
@@ -108,6 +128,10 @@ namespace Visualization
             CommunityThree.Image = CardsOnBoard["CommunityThree"];
 
             Log("Second Betting Round");
+
+            flop = turn = river = betting = false;
+            turn = true;
+            betting = true;
         }
 
         public void Turn()
@@ -118,6 +142,10 @@ namespace Visualization
             CommunityFour.Image = CardsOnBoard["CommunityFour"];
 
             Log("Third Betting Round");
+
+            flop = turn = river = betting = false;
+            river = true;
+            betting = true;
         }
 
         public void River()
@@ -128,29 +156,57 @@ namespace Visualization
             CommunityFive.Image = CardsOnBoard["CommunityFive"];
 
             Log("Last Betting Round");
+
+            flop = turn = river = betting = false;
+            river = true;
+            betting = true;
+            compare = true;
         }
 
         public void BettingRound(int a, bool first)
         {
+            int winner = -1;
+
             if (first)
             {
-                int[] bets = new int[]
-                {
-                    0,0,0,0
-                };
+                //bets[(a - 1) % Balance.Count] = 2;
+                //bets[(a - 2) % Balance.Count] = 1;
             }
 
-            for (int i = a; true; i = (i+1) % Balance.Count)
+            bool roundoUno = true;
+
+            for (int i = a; true; i = (i + 1) % Balance.Count)
             {
-                if(folded[i])
+                if (folded[i])
                 {
                     //Player has folded
                     continue;
                 }
 
+                if (i == a && !roundoUno)
+                {
+                    int target = Highest(bets);
+
+                    bool blh = false;
+
+                    for (int j = 0; j < bets.Length; j++)
+                    {
+                        if (bets[j] != target && !folded[j])
+                        {
+                            blh = true;
+                        }
+                    }
+
+                    if (!blh)
+                    {
+                        Log("Betting Round Over");
+                        return;
+                    }
+                }
+
                 int playerBet = 0;
 
-                if (a == 0)
+                if (i == 0)
                 {
                     playerBet = GetPlayerBet();
 
@@ -162,12 +218,62 @@ namespace Visualization
                 }
                 else
                 {
-                    //get ai bet;
-                    playerBet = i;
+                    //Ai bet
+                    playerBet = 1;
                 }
 
+                if (!folded[i])
+                {
+                    Log("Player {0} ({1}) bet {2}", i,i == 0? "You" : "AI", playerBet);
 
+                    bets[i] += playerBet;
+                }
+
+                bool found = false;
+
+                for (int j = 0; j < folded.Length; j++)
+                {
+                    if (!folded[j])
+                    {
+                        if (found)
+                        {
+                            found = false;
+                            winner = -1;
+                            break;
+                        }
+                        else
+                        {
+                            found = true;
+                            winner = j;
+                        }
+                    }
+                }
+
+                if (found)
+                {
+                    Log("Congratulations! Player {0} ({1} has won!)", winner, winner == 0 ? "You" : "AI");
+                    Balance[winner] += pool;
+                    gameWon = true;
+                    return;
+                }
+
+                roundoUno = false;
             }
+        }
+
+        public int Highest(int[] bets)
+        {
+            int highest = 0;
+
+            for (int i = 0; i < bets.Length; i++)
+            {
+                if(bets[i] > highest)
+                {
+                    highest = bets[i];
+                }
+            }
+
+            return highest;
         }
 
         public int GetPlayerBet()
@@ -203,9 +309,14 @@ namespace Visualization
             return returnPlayer;
         }
 
+        public void Log(object message, params object[] obj)
+        {
+            LogWindow.AppendText((string.Format(message.ToString(), obj)+ "\n"));
+        }
+
         public void Log(string message, params object[] obj)
         {
-            LogWindow.AppendText((string.Format(message, obj)+ "\n"));
+            LogWindow.AppendText(string.Format(message, obj) + "\n");
         }
 
         public void LogClear()
@@ -216,6 +327,39 @@ namespace Visualization
         private void TestBet_Click(object sender, EventArgs e)
         {
             BettingRound(0, false);
+        }
+
+        private void next_Click(object sender, EventArgs e)
+        {
+            if (betting)
+            {
+                BettingRound(startBet, first);
+                betting = false;
+                return;
+            }
+
+            if (flop)
+            {
+                Flop();
+                return;
+            }
+
+            if (turn)
+            {
+                Turn();
+                return;
+            }
+
+            if (river)
+            {
+                River();
+                return;
+            }
+
+            if (compare)
+            {
+
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Visualization
     {
         public static List<Card> Shuffle(this List<Card> d)
         {
-            System.Random rng = new Random();
+            Random rng = new Random();
 
             int n = d.Count;
             while (n > 1)
