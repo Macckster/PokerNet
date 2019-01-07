@@ -39,36 +39,52 @@ namespace Genetic2DAlgorithm
 
         
 
-        static void geain(string[] args)
+        static void Main(string[] args)
         {
             FitnessFunction.InstantiateDynamicArrays();
-            FitnessFunction.PlayRounds();
-            ////temp = DeSerializePlayer("C:\\GymnasieProjekt\\test2.txt");//GeneratePopulation(1, 5, 5, 3, 1, -100, 100)[0];
-            //InstantiateDynamicArrays();
-            //double[][][] pop;
-            //double[][] best = null;//DeSerializePlayer("C:\\GymnasieProjekt\\test1.txt");
-            //for (int i = 0; i < 100000; i++)
-            //{
+            //FitnessFunction.PlayRounds();
+            //temp = DeSerializePlayer("C:\\GymnasieProjekt\\test2.txt");//GeneratePopulation(1, 5, 5, 3, 1, -100, 100)[0];
+            double[][][] pop;
+            double[][] best = null;//DeSerializePlayer("C:\\GymnasieProjekt\\test1.txt");
+            for (int i = 0; i < 100000; i++)
+            {
 
-            //    pop = EvolveWithIslandClustersThreaded(1000, 10, 100, 500, FitnessFunctionTemp, best);//här
+                pop = EvolveWithIslandClustersThreaded(1000, 10, 100, 500, GetFitness, best);//här
 
-            //    if (true)//i % 50 == 0)
-            //    {
-            //        double[] fitness = FitnessFunctionTemp(pop);
-            //        best = FindBestPlayer(pop, fitness);
-            //        SerializePlayer(best, "C:\\GymnasieProjekt\\test1.txt");
-            //        double bestFitness = 0;
-            //        for (int e = 0; e < fitness.Length; e++)
-            //        {
-            //            bestFitness = Math.Max(fitness[e], bestFitness);
-            //        }
+                if (true)//i % 50 == 0)
+                {
+                    double[] fitness = GetFitness(pop);
+                    best = FindBestPlayer(pop, fitness);
+                    SerializePlayer(best, "C:\\GymnasieProjekt\\test1.txt");
+                    double bestFitness = 0;
+                    for (int e = 0; e < fitness.Length; e++)
+                    {
+                        bestFitness = Math.Max(fitness[e], bestFitness);
+                    }
 
-            //        //Console.WriteLine((-(bestFitness - 8000)).ToString() + " : " + (-(bestFitness - 8000)/connections).ToString());
-            //    }
-            //}
+                    //Console.WriteLine((-(bestFitness - 8000)).ToString() + " : " + (-(bestFitness - 8000)/connections).ToString());
+                }
+            }
         }
 
-        
+        static double[] GetFitness(double[][][] pop)
+        {
+            double[] fitness = new double[pop.Length];
+            for (int i = 0; i < pop.Length; i += 4)
+            {
+                double[][][] evaluees = new double[4][][];
+                for (int j = 0; j < 4; j++)
+                {
+                    evaluees[j] = pop[i + j];
+                }
+                int[] fit = FitnessFunction.PlayRounds(evaluees);
+                for (int j = 0; j < 4; j++)
+                {
+                    fitness[i + j] = fit[j];
+                }
+            }
+            return fitness;
+        }
 
         /// <summary>
         /// Serializes a player to text format
