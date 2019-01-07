@@ -245,7 +245,7 @@ namespace cardOddsSimulator
             }
         }
 
-        public static int[] PlayRounds(/*double[][][] networks*/)
+        public static int[] PlayRounds(double[][][] networks)
         {
             List<Card> board = new List<Card>();
             List<Card> deck = CreateDeckList();
@@ -342,8 +342,12 @@ namespace cardOddsSimulator
                         {
                             //Get bet from index
                             bet = GetBet(
-                                /*networks[playerIndexArray[PlayerIndex]], playerBalance[playerIndexArray[PlayerIndex]],*/ 
-                                board.ToArray(), playerCards[playerIndexArray[PlayerIndex]]);
+                                networks[playerIndexArray[PlayerIndex]], playerBalance[playerIndexArray[PlayerIndex]],
+                                board.ToArray(), playerCards[playerIndexArray[PlayerIndex]],
+                                playerBet[playerIndexArray[PlayerIndex]],
+                                playerCount,
+                                i,
+                                highestCurrentBet);
 
                             if (bet <= playerBalance[playerIndexArray[PlayerIndex]])
                             {
@@ -408,12 +412,19 @@ namespace cardOddsSimulator
             return playerBalance;
         }
 
-        static int GetBet(/*double[][] player, int balance, */Card[] b, Card[] p, int bet, int playerCount, int round, int highBet)
+        static int GetBet(double[][] player, int balance, Card[] b, Card[] p, int bet, int playerCount, int round, int highBet)
         {
             List<Card> cards = new List<Card>(b);
             cards.AddRange(p);
             cards.Sort(delegate (Card c1, Card c2) { return c1.id - c2.id; });
             double winChance = ChanceOfWin(cards.ToArray());
+            int balanceBeforeBet = balance + bet;
+            double[] inputs = new double[5];
+            inputs[0] = bet / balanceBeforeBet;
+            inputs[1] = highBet / balanceBeforeBet;
+            inputs[2] = winChance;
+            inputs[3] = playerCount;
+            inputs[4] = round;
             //bool isPlayer = true;
             //for (int i = 0; i < player.Length / 2; i++)
             //{
@@ -426,7 +437,7 @@ namespace cardOddsSimulator
             //{
 
             //}
-            return 2;
+            return (int)(NeuralNet.FeedForward(inputs, player)[0] * balanceBeforeBet);
         }
 
         static double ChanceOfWin(Card[] cards)
