@@ -4,35 +4,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PokerNet_2._0
+namespace PokerNet
 {
-    static class NeuralSettings
+    public static class NetSettings
      {
-          public int inputNodeCount;
-          public int outPutNodeCount;
-          public int[] midlayerNodesCount;
-     }
+          public static int fitnessRounds = 12;
+          public static int inputNodeCount = 4;
+          public static int outPutNodeCount = 1;
+          public static double minWeight = -6;
+          public static double maxWeight = 6;
+          public static int[] midlayerNodesCount = { 4, 5, 5, 4};
+    }
 
-    class NeuralNet
+    public static class NeuralNet
     {
-        public double[][] weights;
-
-        /// <summary>
-        /// Create a new Neural Network
-        /// </summary>
-        public NeuralNet()
-        {
-            weights = GenerateStartWeights();
-        }
+        static Random StaticRandom = new Random();
 
         /// <summary>
         /// "Feed" the inputs through the network.
         /// </summary>
         /// <param name="input">Inputs you want to use</param>
         /// <returns></returns>
-        public double[] FeedForward(double[] input)
+        public static double[] FeedForward(double[] input, double[][] weights)
         { 
-            if(input.Length != inputNodeCount)
+            if(input.Length != NetSettings.inputNodeCount)
             {
                 //You doofus you sent the wrong size inputs!
                 return null;
@@ -40,8 +35,8 @@ namespace PokerNet_2._0
 
             //Split the weights and the biases as they are stored in the same array
             double[] layerWeights = weights[0];
-            double[] bias = GetBias(layerWeights, inputNodeCount);
-            layerWeights = RemoveBias(layerWeights, inputNodeCount);
+            double[] bias = GetBias(layerWeights, NetSettings.inputNodeCount);
+            layerWeights = RemoveBias(layerWeights, NetSettings.inputNodeCount);
 
             //Apply the weights and biases to the inputs
             double[] values = ApplyWeightsAndBias(layerWeights, input, bias);
@@ -50,10 +45,10 @@ namespace PokerNet_2._0
             values = Map(Sigmoid, values);
 
             //Apply weights and biases to the values for each middle layer
-            for (int i = 0; i < midlayerNodesCount.Length; i++)
+            for (int i = 0; i < NetSettings.midlayerNodesCount.Length; i++)
             {
                 //Get the node count for this array
-                int nodeCount = midlayerNodesCount[i];
+                int nodeCount = NetSettings.midlayerNodesCount[i];
 
                 //Split the weights and the biases as they are stored in the same array
                 layerWeights = weights[i + 1];
@@ -71,7 +66,7 @@ namespace PokerNet_2._0
         }
 
         //Apply weights to some values
-        double[] ApplyWeightsAndBias(double[] weights, double[] values, double[] biases)
+        static double[] ApplyWeightsAndBias(double[] weights, double[] values, double[] biases)
         {
             int nextLayerNodeCount = weights.Length / values.Length;
 
@@ -89,7 +84,7 @@ namespace PokerNet_2._0
         }
 
         //Run a function on all values in an array
-        double[] Map(Func<double, double> function, double[] arr)
+        static double[] Map(Func<double, double> function, double[] arr)
         {
             for (int i = 0; i < arr.Length; i++)
             {
@@ -100,7 +95,7 @@ namespace PokerNet_2._0
         }
 
         //Get the bias from some weights
-        double[] GetBias(double[] arr, int biasCount)
+        static double[] GetBias(double[] arr, int biasCount)
         {
             double[] bias = new double[biasCount];
 
@@ -113,7 +108,7 @@ namespace PokerNet_2._0
         }
 
         //Remove the bias from a array
-        double[] RemoveBias(double[] arr, int biasCount)
+        static double[] RemoveBias(double[] arr, int biasCount)
         {
             double[] ret = new double[arr.Length - biasCount];
 
@@ -129,24 +124,24 @@ namespace PokerNet_2._0
         }
 
         //Sigmoid function to normalize values between -1 and 1
-        double Sigmoid(double x)
+        static double Sigmoid(double x)
         {
             return 1 / (1 + Math.Exp(-x));
         }
 
         //Generate the weight matrix aswell as set some start values
-        public double[][] GenerateStartWeights()
+        public static double[][] GenerateNeuralNetwork()
         {
-            double[][] weights = new double[1 + midlayerNodesCount.Length][];
+            double[][] weights = new double[1 + NetSettings.midlayerNodesCount.Length][];
 
             //Set up the weights in the first layer
-            weights[0] = new double[inputNodeCount * midlayerNodesCount[0] + inputNodeCount];
-            weights[weights.Length - 1] = new double[midlayerNodesCount.Last() * outPutNodeCount + midlayerNodesCount.Last()];
+            weights[0] = new double[NetSettings.inputNodeCount * NetSettings.midlayerNodesCount[0] + NetSettings.inputNodeCount];
+            weights[weights.Length - 1] = new double[NetSettings.midlayerNodesCount.Last() * NetSettings.outPutNodeCount + NetSettings.midlayerNodesCount.Last()];
             
             //Set up the weights in the other layers
             for (int i = 1; i < weights.Length - 1; i++)
             {
-                weights[i] = new double[midlayerNodesCount[i - 1] * midlayerNodesCount[i] + midlayerNodesCount[i - 1]];
+                weights[i] = new double[NetSettings.midlayerNodesCount[i - 1] * NetSettings.midlayerNodesCount[i] + NetSettings.midlayerNodesCount[i - 1]];
             }
 
             //Not useful just here to set some inital weights and biases
@@ -154,7 +149,7 @@ namespace PokerNet_2._0
             {
                 for (int j = 0; j < weights[i].Length; j++)
                 {
-                    weights[i][j] = 1;
+                    weights[i][j] = StaticRandom.NextDouble() * (NetSettings.maxWeight - NetSettings.minWeight) + NetSettings.minWeight;
                 }
             }
 

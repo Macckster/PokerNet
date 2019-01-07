@@ -36,6 +36,10 @@
             this.CommunityThree = new System.Windows.Forms.PictureBox();
             this.CommunityFour = new System.Windows.Forms.PictureBox();
             this.CommunityFive = new System.Windows.Forms.PictureBox();
+            this.LogWindow = new System.Windows.Forms.RichTextBox();
+            this.PlayerCardsLbl = new System.Windows.Forms.Label();
+            this.ComCardsLbl = new System.Windows.Forms.Label();
+            this.TestBet = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCardOne)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCardTwo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CommunityOne)).BeginInit();
@@ -67,7 +71,7 @@
             this.Testbtn.Name = "Testbtn";
             this.Testbtn.Size = new System.Drawing.Size(75, 56);
             this.Testbtn.TabIndex = 2;
-            this.Testbtn.Text = "Test";
+            this.Testbtn.Text = "Start Test";
             this.Testbtn.UseVisualStyleBackColor = true;
             this.Testbtn.Click += new System.EventHandler(this.Testbtn_Click);
             // 
@@ -111,11 +115,55 @@
             this.CommunityFive.TabIndex = 7;
             this.CommunityFive.TabStop = false;
             // 
+            // LogWindow
+            // 
+            this.LogWindow.Location = new System.Drawing.Point(794, 12);
+            this.LogWindow.Name = "LogWindow";
+            this.LogWindow.Size = new System.Drawing.Size(199, 426);
+            this.LogWindow.TabIndex = 8;
+            this.LogWindow.Text = "";
+            // 
+            // PlayerCardsLbl
+            // 
+            this.PlayerCardsLbl.AutoSize = true;
+            this.PlayerCardsLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.PlayerCardsLbl.Location = new System.Drawing.Point(12, 277);
+            this.PlayerCardsLbl.Name = "PlayerCardsLbl";
+            this.PlayerCardsLbl.Size = new System.Drawing.Size(89, 20);
+            this.PlayerCardsLbl.TabIndex = 9;
+            this.PlayerCardsLbl.Text = "Your Cards";
+            this.PlayerCardsLbl.Visible = false;
+            // 
+            // ComCardsLbl
+            // 
+            this.ComCardsLbl.AutoSize = true;
+            this.ComCardsLbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.ComCardsLbl.Location = new System.Drawing.Point(114, 82);
+            this.ComCardsLbl.Name = "ComCardsLbl";
+            this.ComCardsLbl.Size = new System.Drawing.Size(134, 20);
+            this.ComCardsLbl.TabIndex = 10;
+            this.ComCardsLbl.Text = "Community Cards";
+            this.ComCardsLbl.Visible = false;
+            // 
+            // TestBet
+            // 
+            this.TestBet.Location = new System.Drawing.Point(713, 74);
+            this.TestBet.Name = "TestBet";
+            this.TestBet.Size = new System.Drawing.Size(75, 56);
+            this.TestBet.TabIndex = 11;
+            this.TestBet.Text = "Bet Test";
+            this.TestBet.UseVisualStyleBackColor = true;
+            this.TestBet.Click += new System.EventHandler(this.TestBet_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1005, 450);
+            this.Controls.Add(this.TestBet);
+            this.Controls.Add(this.ComCardsLbl);
+            this.Controls.Add(this.PlayerCardsLbl);
+            this.Controls.Add(this.LogWindow);
             this.Controls.Add(this.CommunityFive);
             this.Controls.Add(this.CommunityFour);
             this.Controls.Add(this.CommunityThree);
@@ -134,6 +182,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.CommunityFour)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.CommunityFive)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -147,6 +196,10 @@
         private System.Windows.Forms.PictureBox CommunityThree;
         private System.Windows.Forms.PictureBox CommunityFour;
         private System.Windows.Forms.PictureBox CommunityFive;
+        private System.Windows.Forms.RichTextBox LogWindow;
+        private System.Windows.Forms.Label PlayerCardsLbl;
+        private System.Windows.Forms.Label ComCardsLbl;
+        private System.Windows.Forms.Button TestBet;
     }
 }
 

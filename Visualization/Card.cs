@@ -62,5 +62,11 @@ namespace Visualization
         }
 
         public static implicit operator Image(Card v) { return v.Image; }
+        public static implicit operator string(Card v) { return v.ToString(); }
+
+        public override string ToString()
+        {
+            return name;
+        }
     }
 }

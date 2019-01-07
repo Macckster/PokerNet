@@ -1,8 +1,0 @@
-Pre Flop
-Betting
-Flop 3
-Betting
-Turn 1
-betting
-river 1
-betting
