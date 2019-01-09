@@ -24,7 +24,47 @@ namespace Visualization
             {
                 string name = Path.GetFileName(s);
                 name = name.Remove(name.Length - 4);
-                AllCards.Add(name, new Card(new Bitmap(s), name));
+
+                char suitChar = name[name.Length - 1];
+                string den = name.Remove(name.Length - 1);
+
+                Card.CardSuit suit = Card.CardSuit.Clubs;
+
+                switch (suitChar)
+                {
+                    case 'h':
+                        suit = Card.CardSuit.Heart;
+                        break;
+                    case 'd':
+                        suit = Card.CardSuit.Diamond;
+                        break;
+                    case 's':
+                        suit = Card.CardSuit.Spades;
+                        break;
+                }
+
+                int value = 0;
+
+                switch (den)
+                {
+                    case "A":
+                        value = 1;
+                        break;
+                    case "J":
+                        value = 11;
+                        break;
+                    case "Q":
+                        value = 12;
+                        break;
+                    case "K":
+                        value = 13;
+                        break;
+                    default:
+                        value = int.Parse(den);
+                        break;
+                }
+
+                AllCards.Add(name, new Card(new Bitmap(s), name, value, suit));
             }
         }
 
@@ -43,8 +83,25 @@ namespace Visualization
 
     class Card
     {
+        public enum CardSuit
+        {
+            Heart = 0,//0
+            Diamond = 1,//1
+            Clubs = 2,//2
+            Spades = 3//3
+        }
+
         public Bitmap Image;
         private string name;
+
+        public int denomination;
+        public CardSuit suit;
+
+        public Card(Bitmap image, string name, int denomination, CardSuit suit) : this(image, name)
+        {
+            this.denomination = denomination;
+            this.suit = suit;
+        }
 
         public Card(Bitmap image, string name) : this(image)
         {

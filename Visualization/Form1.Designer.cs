@@ -39,8 +39,10 @@
             this.LogWindow = new System.Windows.Forms.RichTextBox();
             this.PlayerCardsLbl = new System.Windows.Forms.Label();
             this.ComCardsLbl = new System.Windows.Forms.Label();
-            this.TestBet = new System.Windows.Forms.Button();
-            this.next = new System.Windows.Forms.Button();
+            this.Next = new System.Windows.Forms.Button();
+            this.YourBetlbl = new System.Windows.Forms.Label();
+            this.Balancelbl = new System.Windows.Forms.Label();
+            this.CurrentBetlbl = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCardOne)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.PlayerCardTwo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.CommunityOne)).BeginInit();
@@ -68,7 +70,7 @@
             // 
             // Testbtn
             // 
-            this.Testbtn.Location = new System.Drawing.Point(713, 12);
+            this.Testbtn.Location = new System.Drawing.Point(762, 12);
             this.Testbtn.Name = "Testbtn";
             this.Testbtn.Size = new System.Drawing.Size(75, 56);
             this.Testbtn.TabIndex = 2;
@@ -118,7 +120,7 @@
             // 
             // LogWindow
             // 
-            this.LogWindow.Location = new System.Drawing.Point(794, 12);
+            this.LogWindow.Location = new System.Drawing.Point(843, 12);
             this.LogWindow.Name = "LogWindow";
             this.LogWindow.Size = new System.Drawing.Size(247, 426);
             this.LogWindow.TabIndex = 8;
@@ -146,34 +148,59 @@
             this.ComCardsLbl.Text = "Community Cards";
             this.ComCardsLbl.Visible = false;
             // 
-            // TestBet
+            // Next
             // 
-            this.TestBet.Location = new System.Drawing.Point(713, 74);
-            this.TestBet.Name = "TestBet";
-            this.TestBet.Size = new System.Drawing.Size(75, 56);
-            this.TestBet.TabIndex = 11;
-            this.TestBet.Text = "Bet Test";
-            this.TestBet.UseVisualStyleBackColor = true;
-            this.TestBet.Click += new System.EventHandler(this.TestBet_Click);
+            this.Next.Location = new System.Drawing.Point(762, 74);
+            this.Next.Name = "Next";
+            this.Next.Size = new System.Drawing.Size(75, 56);
+            this.Next.TabIndex = 12;
+            this.Next.Text = "Next";
+            this.Next.UseVisualStyleBackColor = true;
+            this.Next.Visible = false;
+            this.Next.Click += new System.EventHandler(this.Next_Click);
             // 
-            // next
+            // YourBetlbl
             // 
-            this.next.Location = new System.Drawing.Point(713, 136);
-            this.next.Name = "next";
-            this.next.Size = new System.Drawing.Size(75, 56);
-            this.next.TabIndex = 12;
-            this.next.Text = "Next";
-            this.next.UseVisualStyleBackColor = true;
-            this.next.Visible = false;
-            this.next.Click += new System.EventHandler(this.next_Click);
+            this.YourBetlbl.AutoSize = true;
+            this.YourBetlbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.YourBetlbl.Location = new System.Drawing.Point(648, 133);
+            this.YourBetlbl.Name = "YourBetlbl";
+            this.YourBetlbl.Size = new System.Drawing.Size(133, 20);
+            this.YourBetlbl.TabIndex = 13;
+            this.YourBetlbl.Text = "Your Current Bet:";
+            this.YourBetlbl.Visible = false;
+            // 
+            // Balancelbl
+            // 
+            this.Balancelbl.AutoSize = true;
+            this.Balancelbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Balancelbl.Location = new System.Drawing.Point(710, 173);
+            this.Balancelbl.Name = "Balancelbl";
+            this.Balancelbl.Size = new System.Drawing.Size(71, 20);
+            this.Balancelbl.TabIndex = 14;
+            this.Balancelbl.Text = "Balance:";
+            this.Balancelbl.Visible = false;
+            // 
+            // CurrentBetlbl
+            // 
+            this.CurrentBetlbl.AutoSize = true;
+            this.CurrentBetlbl.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.CurrentBetlbl.Location = new System.Drawing.Point(686, 153);
+            this.CurrentBetlbl.Name = "CurrentBetlbl";
+            this.CurrentBetlbl.Size = new System.Drawing.Size(95, 20);
+            this.CurrentBetlbl.TabIndex = 15;
+            this.CurrentBetlbl.Text = "Current Bet:";
+            this.CurrentBetlbl.Visible = false;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1053, 450);
-            this.Controls.Add(this.next);
-            this.Controls.Add(this.TestBet);
+            this.ClientSize = new System.Drawing.Size(1102, 450);
+            this.Controls.Add(this.CurrentBetlbl);
+            this.Controls.Add(this.Balancelbl);
+            this.Controls.Add(this.YourBetlbl);
+            this.Controls.Add(this.Next);
             this.Controls.Add(this.ComCardsLbl);
             this.Controls.Add(this.PlayerCardsLbl);
             this.Controls.Add(this.LogWindow);
@@ -212,8 +239,10 @@
         private System.Windows.Forms.RichTextBox LogWindow;
         private System.Windows.Forms.Label PlayerCardsLbl;
         private System.Windows.Forms.Label ComCardsLbl;
-        private System.Windows.Forms.Button TestBet;
-        private System.Windows.Forms.Button next;
+        private System.Windows.Forms.Button Next;
+        private System.Windows.Forms.Label YourBetlbl;
+        private System.Windows.Forms.Label Balancelbl;
+        private System.Windows.Forms.Label CurrentBetlbl;
     }
 }
 

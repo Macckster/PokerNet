@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using System.IO;
-
+using System.Linq;
 
 namespace Visualization
 {
     public partial class Form1 : Form
     {
         Deck d = new Deck();
-        Dictionary<string, Card> CardsOnBoard = new Dictionary<string, Card>();
+        Dictionary<string, Card> PlayerCards = new Dictionary<string, Card>();
+        List<Card> CommunityCards = new List<Card>();
 
         string weightsPath = "";
         double[][] weights;
 
-        List<int> Balance = new List<int>()
+        int[] Balance = new int[]
         {
             100,100,100,100
         };
@@ -26,19 +27,17 @@ namespace Visualization
         };
 
         int dealer = 0;
-        int pool = 0;
         int lastDealer = -1;
 
         bool flop, turn, river, betting, compare;
 
-        int startBet = -1;
-        bool first;
+        bool gameWon;
 
-        bool gameWon = false;
+        int startBet = -1;
 
         int[] bets =
         {
-                0,0,0,0
+            0,0,0,0
         };
 
         public Form1()
@@ -59,47 +58,61 @@ namespace Visualization
             PreFlop();
         }
 
-        public void PreFlop()
+        void PreFlop()
         {
-            dealer = (lastDealer + 1) % Balance.Count;
+            bets = new int[]
+            {
+                0,0,0,0
+            };
+
+            CommunityCards = new List<Card>();
+            PlayerCards = new Dictionary<string, Card>();
+            folded = new bool[]
+            {
+                false, false,false,false
+            };
+
+            dealer = (lastDealer + 1) % Balance.Length;
             LogClear();
             PlayerCardsLbl.Visible = true;
 
             Log("Beginning");
 
-            CardsOnBoard["PlayerCardOne"] = d.Draw();
-            CardsOnBoard["PlayerCardTwo"] = d.Draw();
+            PlayerCards["PlayerCardOne"] = d.Draw();
+            PlayerCards["PlayerCardTwo"] = d.Draw();
 
-            CardsOnBoard["AiOneCardOne"] = d.Draw();
-            CardsOnBoard["PlayerCardTwo"] = d.Draw();
+            PlayerCards["AiOneCardOne"] = d.Draw();
+            PlayerCards["AiOneCardTwo"] = d.Draw();
 
-            CardsOnBoard["AiTwoCardOne"] = d.Draw();
-            CardsOnBoard["AiTwoCardTwo"] = d.Draw();
+            PlayerCards["AiTwoCardOne"] = d.Draw();
+            PlayerCards["AiTwoCardTwo"] = d.Draw();
 
-            CardsOnBoard["AiThreeCardOne"] = d.Draw();
-            CardsOnBoard["AiThreeCardTwo"] = d.Draw();
+            PlayerCards["AiThreeCardOne"] = d.Draw();
+            PlayerCards["AiThreeCardTwo"] = d.Draw();
 
-            PlayerCardOne.Image = CardsOnBoard["PlayerCardOne"];
-            PlayerCardTwo.Image = CardsOnBoard["PlayerCardTwo"];
+            PlayerCardOne.Image = PlayerCards["PlayerCardOne"];
+            PlayerCardTwo.Image = PlayerCards["PlayerCardTwo"];
 
             Log("Dealer is Player Nr " + dealer + " ({0})", dealer == 0 ? "You" : "AI");
 
-            int littleBlind = (dealer + 1) % Balance.Count;
+            int littleBlind = (dealer + 1) % Balance.Length;
 
             Log("Little Blind is player Nr " + littleBlind + " ({0})", littleBlind == 0 ? "You" : "AI");
 
-            int bigBlind = (dealer + 2) % Balance.Count;
+            int bigBlind = (dealer + 2) % Balance.Length;
 
             Log("Big Blind is player Nr " + bigBlind + " ({0})", bigBlind == 0 ? "You" : "AI");
 
             Log("Little Blind and Big Blind play their starting bets");
             
-            pool += 3;
             Balance[littleBlind] -= 1;
             Balance[bigBlind] -= 2;
-            Log("Pool is on {0}", pool);
+            bets[littleBlind] += 1;
+            bets[bigBlind] += 2;
 
-            int FirstPlayer = (bigBlind + 1) % Balance.Count;
+            UpdatePlayerVisuals();
+
+            int FirstPlayer = (bigBlind + 1) % Balance.Length;
 
             Log("First Betting Round starting on player {0} ({1})", FirstPlayer, FirstPlayer == 0 ? "You" : "AI");
 
@@ -107,25 +120,24 @@ namespace Visualization
             flop = true;
             betting = true;
 
-            first = true;
             startBet = FirstPlayer;
 
-            next.Visible = true;
+            Next.Visible = true;
         }
 
-        public void Flop()
+        void Flop()
         {
             Log("Dealer Flips First Three Community Cards");
 
             ComCardsLbl.Visible = true;
 
-            CardsOnBoard["CommunityOne"] = d.Draw();
-            CardsOnBoard["CommunityTwo"] = d.Draw();
-            CardsOnBoard["CommunityThree"] = d.Draw();
+            CommunityCards.Add(d.Draw());
+            CommunityCards.Add(d.Draw());
+            CommunityCards.Add(d.Draw());
 
-            CommunityOne.Image = CardsOnBoard["CommunityOne"];
-            CommunityTwo.Image = CardsOnBoard["CommunityTwo"];
-            CommunityThree.Image = CardsOnBoard["CommunityThree"];
+            CommunityOne.Image = CommunityCards[0];
+            CommunityTwo.Image = CommunityCards[1];
+            CommunityThree.Image = CommunityCards[2];
 
             Log("Second Betting Round");
 
@@ -134,12 +146,12 @@ namespace Visualization
             betting = true;
         }
 
-        public void Turn()
+        void Turn()
         {
             Log("Dealer Flips Fourth Community Card");
 
-            CardsOnBoard["CommunityFour"] = d.Draw();
-            CommunityFour.Image = CardsOnBoard["CommunityFour"];
+            CommunityCards.Add(d.Draw());
+            CommunityFour.Image = CommunityCards[3];
 
             Log("Third Betting Round");
 
@@ -148,135 +160,150 @@ namespace Visualization
             betting = true;
         }
 
-        public void River()
+        void River()
         {
             Log("Dealer Flips Last Community Card");
 
-            CardsOnBoard["CommunityFive"] = d.Draw();
-            CommunityFive.Image = CardsOnBoard["CommunityFive"];
+            CommunityCards.Add(d.Draw());
+            CommunityFive.Image = CommunityCards[3];
 
             Log("Last Betting Round");
 
             flop = turn = river = betting = false;
-            river = true;
             betting = true;
             compare = true;
         }
 
-        public void BettingRound(int a, bool first)
+        void BettingRound(int a)
         {
-            int winner = -1;
+            int lastRaiseIndex = a;
 
-            if (first)
+            bool first = true;
+
+            if (bets[(a - 1) % Balance.Length] == 2)
             {
-                //bets[(a - 1) % Balance.Count] = 2;
-                //bets[(a - 2) % Balance.Count] = 1;
+                lastRaiseIndex = (a - 1) % Balance.Length;
             }
 
-            bool roundoUno = true;
-
-            for (int i = a; true; i = (i + 1) % Balance.Count)
+            for (int i = a; true; i = (i + 1) % Balance.Length)
             {
+                if(lastRaiseIndex == i && !first)
+                {
+                    Log("Betting Round Over");
+                    return;
+                }
+
+                first = false;
+
                 if (folded[i])
                 {
-                    //Player has folded
                     continue;
                 }
 
-                if (i == a && !roundoUno)
-                {
-                    int target = Highest(bets);
+                int targetBet = Highest(bets);
 
-                    bool blh = false;
+                UpdatePlayerVisuals();
 
-                    for (int j = 0; j < bets.Length; j++)
-                    {
-                        if (bets[j] != target && !folded[j])
-                        {
-                            blh = true;
-                        }
-                    }
-
-                    if (!blh)
-                    {
-                        Log("Betting Round Over");
-                        return;
-                    }
-                }
-
-                int playerBet = 0;
+                int playerbet = 0;
 
                 if (i == 0)
                 {
-                    playerBet = GetPlayerBet();
+                    playerbet = GetPlayerBet();
 
-                    if (playerBet == -1)
+                    while (playerbet > Balance[0])
                     {
-                        folded[0] = true;
-                        continue;
+                        playerbet = GetPlayerBet();
                     }
                 }
                 else
                 {
-                    //Ai bet
-                    playerBet = 1;
-                }
+                    playerbet = targetBet - bets[i];
 
-                if (!folded[i])
-                {
-                    Log("Player {0} ({1}) bet {2}", i,i == 0? "You" : "AI", playerBet);
-
-                    bets[i] += playerBet;
-                }
-
-                bool found = false;
-
-                for (int j = 0; j < folded.Length; j++)
-                {
-                    if (!folded[j])
+                    while (playerbet > Balance[i])
                     {
-                        if (found)
-                        {
-                            found = false;
-                            winner = -1;
-                            break;
-                        }
-                        else
-                        {
-                            found = true;
-                            winner = j;
-                        }
+                        playerbet = targetBet - bets[i];
                     }
                 }
-
-                if (found)
+                
+                if(playerbet == -1)
                 {
-                    Log("Congratulations! Player {0} ({1} has won!)", winner, winner == 0 ? "You" : "AI");
-                    Balance[winner] += pool;
-                    gameWon = true;
-                    return;
+                    folded[i] = true;
+                    Log("Player {0} ({1}) folded", i, i == 0 ? "You" : "AI");
+                    continue;
                 }
 
-                roundoUno = false;
+                bets[i] += playerbet;
+                Balance[i] -= playerbet;
+
+                if (bets[i] > targetBet)
+                {
+                    Log("Player {0} ({1}) raised the bet to {2}", i, i == 0 ? "You" : "AI", bets[i]);
+                    lastRaiseIndex = i;
+                }
+
+                if(bets[i] == targetBet)
+                {
+                    Log("Player {0} ({1}) bet {2}", i, i == 0 ? "You" : "AI", playerbet);
+                }
+
+                if (CheckFolded())
+                {
+                    int index = Array.IndexOf(folded, true);
+                    Log("Player {0} ({1}) has won!", index, index == 0 ? "You" : "AI");
+
+                    Balance[index] += GetBetSum(index);
+
+                    gameWon = true;
+                }
             }
         }
 
-        public int Highest(int[] bets)
+        int GetBetSum(int excludor)
         {
-            int highest = 0;
+            int sum = 0;
 
             for (int i = 0; i < bets.Length; i++)
             {
-                if(bets[i] > highest)
+                if(i != excludor)
                 {
-                    highest = bets[i];
+                    sum += bets[i];
+                }
+            }
+
+            return sum;
+        }
+
+        bool CheckFolded()
+        {
+            int counter = 0;
+
+            for (int i = 0; i < folded.Length; i++)
+            {
+                if (folded[i])
+                {
+                    counter++;
+                }
+            }
+
+            return counter == 3;
+        }
+
+        int Highest(int[] arr)
+        {
+            int highest = 0;
+
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if(arr[i] > highest)
+                {
+                    highest = arr[i];
                 }
             }
 
             return highest;
         }
 
-        public int GetPlayerBet()
+        int GetPlayerBet()
         {
             string response = Interaction.InputBox("What do you want do bet? (Cancel to fold)", "User Bet", "");
 
@@ -288,7 +315,7 @@ namespace Visualization
             return int.Parse(response);
         }
 
-        public double[][] GetWeights(string path)
+        double[][] GetWeights(string path)
         {
             StreamReader reader = new StreamReader(path);
 
@@ -309,31 +336,37 @@ namespace Visualization
             return returnPlayer;
         }
 
-        public void Log(object message, params object[] obj)
+        void Log(object message, params object[] obj)
         {
             LogWindow.AppendText((string.Format(message.ToString(), obj)+ "\n"));
         }
 
-        public void Log(string message, params object[] obj)
+        void Log(string message, params object[] obj)
         {
             LogWindow.AppendText(string.Format(message, obj) + "\n");
         }
 
-        public void LogClear()
+        void LogClear()
         {
             LogWindow.Clear();
         }
 
-        private void TestBet_Click(object sender, EventArgs e)
+        void UpdatePlayerVisuals()
         {
-            BettingRound(0, false);
+            YourBetlbl.Visible = true;
+            CurrentBetlbl.Visible = true;
+            Balancelbl.Visible = true;
+
+            YourBetlbl.Text = "Your Current Bet: " + bets[0];
+            CurrentBetlbl.Text = "Current Bet: " + Highest(bets);
+            Balancelbl.Text = "Balance: " + Balance[0];
         }
 
-        private void next_Click(object sender, EventArgs e)
+        void Next_Click(object sender, EventArgs e)
         {
             if (betting)
             {
-                BettingRound(startBet, first);
+                BettingRound(startBet);
                 betting = false;
                 return;
             }
@@ -358,8 +391,396 @@ namespace Visualization
 
             if (compare)
             {
-
+                CompareCards();
             }
+        }
+
+        void CompareCards()
+        {
+            Log("There are still people left in the game some we compare cards");
+
+            int[] fitnessValues = new int[4];
+
+            for (int i = 0; i < fitnessValues.Length; i++)
+            {
+                if (folded[i])
+                    continue;
+
+                if(i == 0)
+                {
+                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["PlayerCardOne"], PlayerCards["PlayerCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                }
+                if (i == 1)
+                {
+                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["AiOneCardOne"], PlayerCards["AiOneCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                }
+                if (i == 2)
+                {
+                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["AiTwoCardOne"], PlayerCards["AiTwoCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                }
+                if (i == 3)
+                {
+                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["AiThreeCardOne"], PlayerCards["AiThreeCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                }
+            }
+
+            int highest = Highest(fitnessValues);
+
+            List<int> winners = new List<int>();
+
+            for (int i = 0; i < fitnessValues.Length; i++)
+            {
+                if(fitnessValues[i] == highest)
+                {
+                    winners.Add(i);
+                }
+            }
+
+            int prize = (GetBetSum(-1) / winners.Count);
+
+            if(winners.Count == 1)
+            {
+                Log("We have one Winner! Congratulations to player {0} ({1}) you win {2}", winners[0], winners[0] == 0 ? "You" : "AI", prize);
+            }
+
+            if (winners.Count == 2)
+            {
+                Log("We have two Winners! Congratulations to players {0} ({1}), {2} ({3}) you win {4}", winners[0], winners[0] == 0 ? "You" : "AI", winners[1]
+                    , winners[1] == 0 ? "You" : "AI", prize);
+            }
+
+            if (winners.Count == 2)
+            {
+                Log("We have three Winners! Congratulations to players {0} ({1}), {2} ({3}), {4} ({5})  you win {6}", winners[0], winners[0] == 0 ? "You" : "AI", winners[1]
+                    , winners[1] == 0 ? "You" : "AI", winners[2], winners[2] == 0 ? "You" : "AI", prize);
+            }
+
+            foreach (int winner in winners)
+            {
+                Balance[winner] += prize;
+            }
+        }
+
+        /// <summary>
+        /// Calculate the fitness of a set of cards
+        /// </summary>
+        /// <param name="cards"></param>
+        /// <returns></returns>
+        static int Fitness(Card[] cards)
+        {
+            int highestCard = GetHighestCard(cards);
+
+            if (RoyalFlush(cards))
+            {
+                return 90000;
+            }
+
+            Tuple<bool, int> sFlush = StraightFlush(cards);
+
+            if (sFlush.Item1)
+            {
+                return 80000 + 100 * sFlush.Item2;
+            }
+
+            if (FourOFaKind(cards))
+            {
+                return 70000 + highestCard;
+            }
+
+            Tuple<bool, int> three = ThreeOFaKind(cards);
+            Tuple<bool, int> pair = Pair(cards);
+
+            if (three.Item1 && pair.Item1) //if it has full house
+            {
+                return 60000 + 100 * three.Item2 + 10 * pair.Item2;
+            }
+
+            Tuple<bool, int> flush = Flush(cards);
+
+            if (flush.Item1)
+            {
+                return 50000 + 10 * flush.Item2;
+            }
+
+            Tuple<bool, int> straight = Straight(cards);
+
+            if (straight.Item1)
+            {
+                return 40000 + 10 * straight.Item2;
+            }
+
+            if (three.Item1)
+            {
+                return 30000 + 100 * three.Item2 + highestCard;
+            }
+
+            Tuple<bool, int, int> twoPair = TwoPair(cards);
+
+            if (twoPair.Item1)
+            {
+                return 20000 + twoPair.Item2 * 100 + twoPair.Item3 * 10 + highestCard;
+            }
+
+            if (pair.Item1)
+            {
+                return 10000 + 100 * pair.Item2 + highestCard;
+            }
+
+            return highestCard;
+        }
+
+        /// <summary>
+        /// Return the highest card in the set
+        /// </summary>
+        /// <param name="cards"></param>
+        /// <returns></returns>
+        static int GetHighestCard(Card[] cards)
+        {
+            int highest = 2;
+
+            foreach (Card c in cards)
+            {
+                //Ace can be 1 or 14, in this case it wil always be 14
+                if (c.denomination == 1)
+                {
+                    return 14;
+                }
+                else
+                {
+                    if (c.denomination > highest)
+                    {
+                        highest = c.denomination;
+                    }
+                }
+            }
+
+            return highest;
+        }
+
+        static bool RoyalFlush(Card[] cards)
+        {
+            for (int i = 0; i < 4; i++) //Run once for each suit
+            {
+                if (cards.Any(x => x.denomination == 1 && (int)x.suit == i)) //If there is an ace
+                    if (cards.Any(x => x.denomination == 13 && (int)x.suit == i)) //If there is a king
+                        if (cards.Any(x => x.denomination == 12 && (int)x.suit == i)) //Ifthere is a queen
+                            if (cards.Any(x => x.denomination == 11 && (int)x.suit == i)) //If there is a jack
+                                if (cards.Any(x => x.denomination == 10 && (int)x.suit == i)) //if there is a 10
+                                {
+                                    return true; //Yes we have royal flush
+                                }
+            }
+
+
+            return false;
+        }
+
+        static Tuple<bool, int> StraightFlush(Card[] cards)
+        {
+            for (int i = 0; i < 4; i++) //Run once for each suit
+            {
+                for (int j = 14; j >= 5; j--) //Run for each denomination
+                {
+                    int k = j == 14 ? 1 : j;
+
+                    if (cards.Any(x => x.denomination == k && (int)x.suit == i))
+                        if (cards.Any(x => x.denomination == j - 1 && (int)x.suit == i))
+                            if (cards.Any(x => x.denomination == j - 2 && (int)x.suit == i))
+                                if (cards.Any(x => x.denomination == j - 3 && (int)x.suit == i))
+                                    if (cards.Any(x => x.denomination == j - 4 && (int)x.suit == i))
+                                    {
+                                        return Tuple.Create(true, j - 4);
+                                    }
+                }
+            }
+            return Tuple.Create(false, 0);
+        }
+
+        static Tuple<bool, int> Straight(Card[] cards)
+        {
+            for (int i = 14; i >= 5; i--) //Run for each card
+            {
+                int k = i == 14 ? 1 : i;
+
+                if (i == 4)
+                {
+
+                }
+
+                if (cards.Any(x => x.denomination == k))
+                    if (cards.Any(x => x.denomination == i - 1))
+                        if (cards.Any(x => x.denomination == i - 2))
+                            if (cards.Any(x => x.denomination == i - 3))
+                                if (cards.Any(x => x.denomination == i - 4))
+                                {
+                                    return Tuple.Create(true, i - 4);
+                                }
+            }
+            return Tuple.Create(false, 0);
+        }
+
+        static Tuple<bool, int> Flush(Card[] cards)
+        {
+            int highest = 0;
+
+            for (int i = 0; i < 4; i++) //Run for each suit
+            {
+                int counter = 0;
+
+                foreach (Card c in cards)
+                {
+                    if ((int)c.suit == i)
+                    {
+                        if (c.denomination == 1)
+                            highest = 14;
+
+                        if (c.denomination > highest)
+                        {
+                            highest = c.denomination;
+                        }
+
+                        counter++;
+                    }
+                }
+
+                if (counter >= 5) //If five cards have the same suit the we have a flush
+                    return Tuple.Create(true, highest);
+            }
+
+            return Tuple.Create(false, 0);
+        }
+
+        static bool FourOFaKind(Card[] cards)
+        {
+            for (int i = 13; i >= 1; i--) //Run for each denomination
+            {
+                int counter = 0;
+
+                foreach (Card c in cards)
+                {
+                    if (c.denomination == i)
+                    {
+                        counter++;
+                    }
+                }
+
+                if (counter >= 4)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        static Tuple<bool, int> ThreeOFaKind(Card[] cards)
+        {
+            for (int i = 13; i >= 1; i--) //Run for each denomination
+            {
+                int counter = 0;
+
+                foreach (Card c in cards)
+                {
+                    if (c.denomination == i)
+                    {
+                        counter++;
+                    }
+                }
+
+                if (counter == 3)
+                {
+                    return Tuple.Create(true, i);
+                }
+            }
+
+            return Tuple.Create(false, 0);
+        }
+
+        static Tuple<bool, int, int> TwoPair(Card[] cards)
+        {
+            int counter = 0;
+
+            int valueA = 0;
+            int valueB = 0;
+
+            Card cardA = null;
+            Card cardB = null;
+
+            for (int j = 1; j < 13; j++) //Run for each denomination
+            {
+                cardA = null;
+                cardB = null;
+
+                foreach (Card c in cards)
+                {
+                    if (c.denomination == j)
+                    {
+                        if (cardA == null)
+                            cardA = c;
+                        else if (cardB == null)
+                        {
+                            cardB = c;
+                            if (valueA == 0)
+                                valueA = cardA.denomination;
+                            else if (valueB == 0)
+                                valueB = cardA.denomination;
+
+                            counter++;
+                        }
+                    }
+                }
+            }
+
+            if (counter == 2) //There is two pairs
+            {
+                return Tuple.Create(true, valueA, valueB);
+            }
+
+            return Tuple.Create(false, 0, 0);
+        }
+
+        static Tuple<bool, int> Pair(Card[] cards)
+        {
+            int counter = 0;
+            int value = 0;
+
+            for (int j = 1; j < 13; j++) //Run for each denomination
+            {
+                Card cardA = null;
+                Card cardB = null;
+
+                bool foundPair = false;
+
+                foreach (Card c in cards)
+                {
+                    if (c.denomination == j)
+                    {
+                        if (cardA == null)
+                            cardA = c;
+                        else if (cardB == null)
+                        {
+                            cardB = c;
+                            counter++;
+                            foundPair = true;
+                        }
+                        else
+                        {
+                            foundPair = false;
+                            counter--; //We don't want to count those where there are more than two cards.
+                        }
+                    }
+                }
+
+                if (foundPair)
+                {
+                    value = cardA.denomination;
+                }
+            }
+
+            if (counter == 1) //We have a pair
+                return Tuple.Create(true, value);
+
+            return Tuple.Create(false, 0);
         }
     }
 }
