@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Microsoft.VisualBasic;
 using System.IO;
 using System.Linq;
+using PokerNet;
 
 namespace Visualization
 {
@@ -13,8 +14,14 @@ namespace Visualization
         Dictionary<string, Card> PlayerCards = new Dictionary<string, Card>();
         List<Card> CommunityCards = new List<Card>();
 
+        static Random StaticRandom = new Random(Environment.TickCount);
+
+        static int gameAmount = 500;
+
         string weightsPath = "";
         double[][] weights;
+
+        int RoundCounter = 0;
 
         int[] Balance = new int[]
         {
@@ -65,6 +72,8 @@ namespace Visualization
                 0,0,0,0
             };
 
+            RoundCounter = 0;
+
             CommunityCards = new List<Card>();
             PlayerCards = new Dictionary<string, Card>();
             folded = new bool[]
@@ -104,7 +113,7 @@ namespace Visualization
             Log("Big Blind is player Nr " + bigBlind + " ({0})", bigBlind == 0 ? "You" : "AI");
 
             Log("Little Blind and Big Blind play their starting bets");
-            
+
             Balance[littleBlind] -= 1;
             Balance[bigBlind] -= 2;
             bets[littleBlind] += 1;
@@ -127,6 +136,7 @@ namespace Visualization
 
         void Flop()
         {
+            RoundCounter = 1;
             Log("Dealer Flips First Three Community Cards");
 
             ComCardsLbl.Visible = true;
@@ -148,6 +158,7 @@ namespace Visualization
 
         void Turn()
         {
+            RoundCounter = 2;
             Log("Dealer Flips Fourth Community Card");
 
             CommunityCards.Add(d.Draw());
@@ -162,6 +173,7 @@ namespace Visualization
 
         void River()
         {
+            RoundCounter = 3;
             Log("Dealer Flips Last Community Card");
 
             CommunityCards.Add(d.Draw());
@@ -174,7 +186,7 @@ namespace Visualization
             compare = true;
         }
 
-        void BettingRound(int a)
+        public void BettingRound(int a)
         {
             int lastRaiseIndex = a;
 
@@ -187,7 +199,7 @@ namespace Visualization
 
             for (int i = a; true; i = (i + 1) % Balance.Length)
             {
-                if(lastRaiseIndex == i && !first)
+                if (lastRaiseIndex == i && !first)
                 {
                     Log("Betting Round Over");
                     return;
@@ -217,15 +229,20 @@ namespace Visualization
                 }
                 else
                 {
-                    playerbet = targetBet - bets[i];
-
-                    while (playerbet > Balance[i])
+                    int counter = 0;
+                    for (int j = 0; j < folded.Length; j++)
                     {
-                        playerbet = targetBet - bets[i];
+                        if (!folded[j])
+                        {
+                            counter++;
+                        }
                     }
+
+                    //TODO get ai cards
+                    playerbet = (int)NeuralNet.FeedForward(new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i],SimulateChanceOfWinning(), counter, RoundCounter }, weights)[0];
                 }
-                
-                if(playerbet == -1)
+
+                if (playerbet == -1)
                 {
                     folded[i] = true;
                     Log("Player {0} ({1}) folded", i, i == 0 ? "You" : "AI");
@@ -235,13 +252,13 @@ namespace Visualization
                 bets[i] += playerbet;
                 Balance[i] -= playerbet;
 
-                if (bets[i] > targetBet)
+                if (bets[i] > targetBet).
                 {
                     Log("Player {0} ({1}) raised the bet to {2}", i, i == 0 ? "You" : "AI", bets[i]);
                     lastRaiseIndex = i;
                 }
 
-                if(bets[i] == targetBet)
+                if (bets[i] == targetBet)
                 {
                     Log("Player {0} ({1}) bet {2}", i, i == 0 ? "You" : "AI", playerbet);
                 }
@@ -264,7 +281,7 @@ namespace Visualization
 
             for (int i = 0; i < bets.Length; i++)
             {
-                if(i != excludor)
+                if (i != excludor)
                 {
                     sum += bets[i];
                 }
@@ -294,7 +311,7 @@ namespace Visualization
 
             for (int i = 0; i < arr.Length; i++)
             {
-                if(arr[i] > highest)
+                if (arr[i] > highest)
                 {
                     highest = arr[i];
                 }
@@ -307,7 +324,7 @@ namespace Visualization
         {
             string response = Interaction.InputBox("What do you want do bet? (Cancel to fold)", "User Bet", "");
 
-            if(response == "")
+            if (response == "")
             {
                 return -1;
             }
@@ -338,7 +355,7 @@ namespace Visualization
 
         void Log(object message, params object[] obj)
         {
-            LogWindow.AppendText((string.Format(message.ToString(), obj)+ "\n"));
+            LogWindow.AppendText((string.Format(message.ToString(), obj) + "\n"));
         }
 
         void Log(string message, params object[] obj)
@@ -406,7 +423,7 @@ namespace Visualization
                 if (folded[i])
                     continue;
 
-                if(i == 0)
+                if (i == 0)
                 {
                     fitnessValues[i] = Fitness(new Card[] { PlayerCards["PlayerCardOne"], PlayerCards["PlayerCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
                 }
@@ -430,7 +447,7 @@ namespace Visualization
 
             for (int i = 0; i < fitnessValues.Length; i++)
             {
-                if(fitnessValues[i] == highest)
+                if (fitnessValues[i] == highest)
                 {
                     winners.Add(i);
                 }
@@ -438,7 +455,7 @@ namespace Visualization
 
             int prize = (GetBetSum(-1) / winners.Count);
 
-            if(winners.Count == 1)
+            if (winners.Count == 1)
             {
                 Log("We have one Winner! Congratulations to player {0} ({1}) you win {2}", winners[0], winners[0] == 0 ? "You" : "AI", prize);
             }
@@ -781,6 +798,95 @@ namespace Visualization
                 return Tuple.Create(true, value);
 
             return Tuple.Create(false, 0);
+        }
+
+        static int SimulateChanceOfWinning(Card[] cards)
+        {
+            int wins = 0;
+            Card[][] players = new Card[4][];
+            cardOddsSimulator.FitnessFunction.Card[] board = new cardOddsSimulator.FitnessFunction.Card[5];
+            for (int i = 2; i < cards.Length; i++)
+            {
+                board[i - 2] = cards[i].ToLucasCards();
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                players[i] = new Card[2];
+            }
+            players[0][0] = cards[0];
+            players[0][1] = cards[1];
+
+            for (int i = 0; i < gameAmount; i++)
+            {
+                List<cardOddsSimulator.FitnessFunction.Card> deck = CreateDeckList(cards);
+
+                for (int j = cards.Length - 2; j < board.Length; j++)
+                {
+                    board[j] = DrawCardFormDeckList(ref deck);
+                }
+
+                for (int j = 1; j < 4; j++)
+                {
+                    for (int k = 0; k < 2; k++)
+                    {
+                        players[j][k] = DrawCardFormDeckList(ref deck).ToMarcusCard();
+                    }
+                }
+
+                int[] points = new int[4];
+                for (int j = 0; j < 4; j++)
+                {
+                    Card[] c = new Card[7];
+                    for (int k = 2; k < c.Length; k++)
+                    {
+                        c[k] = board[k - 2].ToMarcusCard();
+                    }
+                    c[0] = players[j][0];
+                    c[1] = players[j][1];
+                    int d = Fitness(c);
+                    points[j] = Fitness(c);
+                }
+                bool win = true;
+                for (int j = 1; j < players.Length; j++)
+                {
+                    if (points[j] > points[0])
+                        win = false;
+                    //if (points[j] == points[0])
+                    //     Console.Write("Tjo");
+                }
+                if (win)
+                    wins++;
+            }
+            return wins;// / games;
+        }
+
+        static List<cardOddsSimulator.FitnessFunction.Card> CreateDeckList(Card[] cards)
+        {
+            List<cardOddsSimulator.FitnessFunction.Card> deck = new List<cardOddsSimulator.FitnessFunction.Card>();
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 1; j < 14; j++)
+                {
+                    cardOddsSimulator.FitnessFunction.Card newCard = new cardOddsSimulator.FitnessFunction.Card((cardOddsSimulator.FitnessFunction.CardSuit)i, j);
+                    bool add = true;
+                    for (int k = 0; k < cards.Length; k++)
+                    {
+                        if (newCard.id == cards[k].id)
+                            add = false;
+                    }
+                    if (add)
+                        deck.Add(newCard);
+                }
+            }
+            return deck;
+        }
+
+        static cardOddsSimulator.FitnessFunction.Card DrawCardFormDeckList(ref List<cardOddsSimulator.FitnessFunction.Card> deck)
+        {
+            int r = StaticRandom.Next(0, deck.Count);
+            cardOddsSimulator.FitnessFunction.Card c = deck[r];
+            deck.RemoveAt(r);
+            return c;
         }
     }
 }

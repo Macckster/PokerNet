@@ -97,6 +97,8 @@ namespace Visualization
         public int denomination;
         public CardSuit suit;
 
+        public int id { get { return (int)suit * 13 + denomination - 1; }}
+
         public Card(Bitmap image, string name, int denomination, CardSuit suit) : this(image, name)
         {
             this.denomination = denomination;
@@ -113,9 +115,20 @@ namespace Visualization
             Image = image;
         }
 
+        public Card(CardSuit suit, int denomination)
+        {
+            this.suit = suit;
+            this.denomination = denomination;
+        }
+
         public Card()
         {
 
+        }
+
+        public cardOddsSimulator.FitnessFunction.Card ToLucasCards()
+        {
+            return new cardOddsSimulator.FitnessFunction.Card((cardOddsSimulator.FitnessFunction.CardSuit)suit, denomination);
         }
 
         public static implicit operator Image(Card v) { return v.Image; }

@@ -32,5 +32,10 @@ namespace Visualization
             d.Remove(c);
             return c;
         }
+
+        public static Card ToMarcusCard(this cardOddsSimulator.FitnessFunction.Card c)
+        {
+            return new Card((Card.CardSuit)c.suit, c.denomination);
+        }
     }
 }
