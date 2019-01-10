@@ -20,6 +20,7 @@ namespace cardOddsSimulator
             Clubs = 2,//2
             Spades = 3//3
         }
+
         public class Card
         {
             public int id;
@@ -27,10 +28,11 @@ namespace cardOddsSimulator
             public CardSuit suit;
             public Card(CardSuit Suit, int denomination)
             {
-                this.suit = Suit;
+                suit = Suit;
                 this.denomination = denomination;
                 id = (int)Suit * 13 + denomination - 1;
             }
+
             public override string ToString()
             {
                 if (suit == CardSuit.Heart)
@@ -43,9 +45,8 @@ namespace cardOddsSimulator
                     return "D" + denomination;
                 return null;
             }
-
-            public 
         }
+
         //public static Card[] deck;
         public static int players = 4;
         public static int games = 100;
@@ -80,6 +81,7 @@ namespace cardOddsSimulator
                     }
                 }
             }
+
             int d = 0;
             knownCards6Chance = new byte[47][][][][][];
             for (int i = 0; i < knownCards6Chance.Length; i++)
@@ -269,6 +271,7 @@ namespace cardOddsSimulator
                         }
                     }
                 }
+
                 List<int> indexToGive = new List<int>{0};
                 int bestScore = -1;
                 for (int k = 0; k < playerIndexArray.Length; k++)
@@ -307,8 +310,8 @@ namespace cardOddsSimulator
             double winChance = ChanceOfWin(cards.ToArray());
             int balanceBeforeBet = balance + bet;
             double[] inputs = new double[5];
-            inputs[0] = bet / balanceBeforeBet;
-            inputs[1] = highBet / balanceBeforeBet;
+            inputs[0] = (double)bet / balanceBeforeBet;
+            inputs[1] = (double)highBet / balanceBeforeBet;
             inputs[2] = winChance;
             inputs[3] = playerCount;
             inputs[4] = round;
