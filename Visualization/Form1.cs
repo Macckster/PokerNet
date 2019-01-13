@@ -11,7 +11,14 @@ namespace Visualization
     public partial class Form1 : Form
     {
         Deck d = new Deck();
-        Dictionary<string, Card> PlayerCards = new Dictionary<string, Card>();
+        List<Card[]> PlayerCards = new List<Card[]>
+        {
+            new Card[2],
+            new Card[2],
+            new Card[2],
+            new Card[2]
+        };
+
         List<Card> CommunityCards = new List<Card>();
 
         static Random StaticRandom = new Random(Environment.TickCount);
@@ -75,7 +82,6 @@ namespace Visualization
             RoundCounter = 0;
 
             CommunityCards = new List<Card>();
-            PlayerCards = new Dictionary<string, Card>();
             folded = new bool[]
             {
                 false, false,false,false
@@ -87,20 +93,20 @@ namespace Visualization
 
             Log("Beginning");
 
-            PlayerCards["PlayerCardOne"] = d.Draw();
-            PlayerCards["PlayerCardTwo"] = d.Draw();
+            PlayerCards[0][0] = d.Draw();
+            PlayerCards[0][1] = d.Draw();
 
-            PlayerCards["AiOneCardOne"] = d.Draw();
-            PlayerCards["AiOneCardTwo"] = d.Draw();
+            PlayerCards[1][0] = d.Draw();
+            PlayerCards[1][1] = d.Draw();
 
-            PlayerCards["AiTwoCardOne"] = d.Draw();
-            PlayerCards["AiTwoCardTwo"] = d.Draw();
+            PlayerCards[2][0] = d.Draw();
+            PlayerCards[2][1] = d.Draw();
 
-            PlayerCards["AiThreeCardOne"] = d.Draw();
-            PlayerCards["AiThreeCardTwo"] = d.Draw();
+            PlayerCards[3][0] = d.Draw();
+            PlayerCards[3][1] = d.Draw();
 
-            PlayerCardOne.Image = PlayerCards["PlayerCardOne"];
-            PlayerCardTwo.Image = PlayerCards["PlayerCardTwo"];
+            PlayerCardOne.Image = PlayerCards[0][0];
+            PlayerCardTwo.Image = PlayerCards[0][1];
 
             Log("Dealer is Player Nr " + dealer + " ({0})", dealer == 0 ? "You" : "AI");
 
@@ -238,8 +244,7 @@ namespace Visualization
                         }
                     }
 
-                    //TODO get ai cards
-                    playerbet = (int)NeuralNet.FeedForward(new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i],SimulateChanceOfWinning(), counter, RoundCounter }, weights)[0];
+                    playerbet = (int)NeuralNet.FeedForward(new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i],SimulateChanceOfWinning(PlayerCards[i].Concat(CommunityCards).ToArray()), counter, RoundCounter }, weights)[0];
                 }
 
                 if (playerbet == -1)
@@ -252,7 +257,7 @@ namespace Visualization
                 bets[i] += playerbet;
                 Balance[i] -= playerbet;
 
-                if (bets[i] > targetBet).
+                if (bets[i] > targetBet)
                 {
                     Log("Player {0} ({1}) raised the bet to {2}", i, i == 0 ? "You" : "AI", bets[i]);
                     lastRaiseIndex = i;
@@ -425,19 +430,19 @@ namespace Visualization
 
                 if (i == 0)
                 {
-                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["PlayerCardOne"], PlayerCards["PlayerCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                    fitnessValues[i] = Fitness(PlayerCards[0].Concat(CommunityCards.ToArray()).ToArray());
                 }
                 if (i == 1)
                 {
-                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["AiOneCardOne"], PlayerCards["AiOneCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                    fitnessValues[i] = Fitness(PlayerCards[1].Concat(CommunityCards.ToArray()).ToArray());
                 }
                 if (i == 2)
                 {
-                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["AiTwoCardOne"], PlayerCards["AiTwoCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                    fitnessValues[i] = Fitness(PlayerCards[2].Concat(CommunityCards.ToArray()).ToArray());
                 }
                 if (i == 3)
                 {
-                    fitnessValues[i] = Fitness(new Card[] { PlayerCards["AiThreeCardOne"], PlayerCards["AiThreeCardTwo"] }.Concat(CommunityCards.ToArray()).ToArray());
+                    fitnessValues[i] = Fitness(PlayerCards[3].Concat(CommunityCards.ToArray()).ToArray());
                 }
             }
 
@@ -466,7 +471,7 @@ namespace Visualization
                     , winners[1] == 0 ? "You" : "AI", prize);
             }
 
-            if (winners.Count == 2)
+            if (winners.Count == 3)
             {
                 Log("We have three Winners! Congratulations to players {0} ({1}), {2} ({3}), {4} ({5})  you win {6}", winners[0], winners[0] == 0 ? "You" : "AI", winners[1]
                     , winners[1] == 0 ? "You" : "AI", winners[2], winners[2] == 0 ? "You" : "AI", prize);
