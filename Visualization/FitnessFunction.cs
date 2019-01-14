@@ -20,7 +20,6 @@ namespace cardOddsSimulator
             Clubs = 2,//2
             Spades = 3//3
         }
-
         public class Card
         {
             public int id;
@@ -28,11 +27,10 @@ namespace cardOddsSimulator
             public CardSuit suit;
             public Card(CardSuit Suit, int denomination)
             {
-                suit = Suit;
+                this.suit = Suit;
                 this.denomination = denomination;
                 id = (int)Suit * 13 + denomination - 1;
             }
-
             public override string ToString()
             {
                 if (suit == CardSuit.Heart)
@@ -46,15 +44,129 @@ namespace cardOddsSimulator
                 return null;
             }
         }
-
         //public static Card[] deck;
         public static int players = 4;
         public static int games = 100;
+        //static void SimulateAllDecks(int boardCardsCount)
+        //{
+        //     //long l = Combinations(52, 2) * Combinations(50, boardCardsCount);
+        //     Stopwatch st = new Stopwatch();
+        //     long soFar = 0;
+        //     long goal = Combinations(52, 2);
+        //     st.Start();
+        //     List<Task> tasks = new List<Task>();
+        //     for (int i = 0; i < deck.Length; i++)
+        //     {
+        //          for (int j = 0; j < deck.Length;  j++)
+        //          {
+        //               if(deck[i].id < deck[j].id)
+        //               {
+        //                    Card c1 = deck[i];
+        //                    Card c2 = deck[j];
+        //                    Task t = new Task(() => { AllBoardPermutations(c1, c2, boardCardsCount); });
+        //                    t.Start();
+        //                    tasks.Add(t);
+        //               }
+        //               if (tasks.Count == 200)
+        //               {
+        //                    bool b = true;
+        //                    while (b)
+        //                    {
+        //                         b = true;
+        //                         for (int k = 0; k < tasks.Count; k++)
+        //                         {
+        //                              if (tasks[k].IsCompleted)
+        //                              {
+        //                                   b = false;
+        //                                   tasks.RemoveAt(k);
+        //                                   soFar++;
+        //                                   k--;
+        //                              }
+        //                         }
+        //                         //Console.WriteLine("Elapsed Time | " + st.Elapsed + " | Expected Time: " + ((st.ElapsedMilliseconds / 60000.0) / ((double)(soFar) / goal)) + " Minutes");
+        //                         //Console.WriteLine("Completed : " + ((double)(soFar * 100) / goal).ToString() + "%");
+        //                         //Console.WriteLine("Average Win Rate : " + AddedChance / total);
+        //                    }
+        //               }
+        //          }
+        //     }
+        //     bool d = true;
+        //     while (d)
+        //     {
+        //          d = false;
+        //          for (int k = 0; k < tasks.Count; k++)
+        //          {
+        //               if (!tasks[k].IsCompleted)
+        //               {
+        //                    d = true;
+        //               }
+        //               else
+        //               {
+        //                    tasks.RemoveAt(k);
+        //                    soFar++;
+        //                    k--;
+        //               }
+        //          }
 
-        public static byte[][] knownCards2Chance;
-        public static byte[][][][][] knownCards5Chance;
-        public static byte[][][][][][] knownCards6Chance;
-        public static byte[][][][][][][] knownCards7Chance;
+        //          Console.Clear();
+        //          Console.WriteLine("Elapsed Time | " + st.Elapsed + " | Expected Time: " + ((st.ElapsedMilliseconds / 60000) / ((double)(soFar) / goal)) + " Minutes");
+        //          Console.WriteLine("Completed : " + ((double)(soFar * 100) / goal).ToString() + "%");
+        //          //Console.WriteLine("Average Win Rate : " + AddedChance / total);
+        //     }
+        //     st.Stop();
+        //}
+        //static double AddedChance = 0;
+        //static void AllBoardPermutations(Card c1, Card c2, int count)
+        //{
+        //     Card[] handThingy = new Card[2 + count];
+        //     handThingy[0] = c1;
+        //     handThingy[1] = c2;
+        //     Directory.CreateDirectory("C:\\GymnasieProjekt\\Data\\" + count + "\\" + GetNameOfCardArrayFirst(handThingy));
+        //     //long f = 0;
+        //     //long added = 0;
+        //     foreach (var item in BoardPermutations(handThingy, 2))
+        //     {
+        //          //f++;
+        //          //if(f % 1000 == 0)
+        //          //{
+        //          //     lock (deck)
+        //          //     {
+        //          //          total += f - added;
+        //          //          added += f - added;
+        //          //     }
+        //          //}
+        //          double chanceOfWin = SimulateChanceOfWinning(item);
+        //          //lock (deck)
+        //          //     AddedChance += chanceOfWin;
+        //          StreamWriter writer = new StreamWriter("C:\\GymnasieProjekt\\Data\\" + count + "\\" + GetNameOfCardArrayFirst(item) + "\\" + GetNameOfCardArray(item) + ".txt");
+        //          writer.Write(chanceOfWin * 100);
+        //          writer.Close();
+        //     }
+        //     //lock (deck)
+        //     //{
+        //     //     total += f - added;
+        //     //     added += f - added;
+        //     //}
+        //}
+
+        //static int[] TrueFitness(double[][][] population)
+        //{
+        //    int[] fitness = new int[population.Length];
+        //    double[][][] evalPop = new double[4][][];
+        //    for (int i = 0; i < population.Length; i = i + 4)
+        //    {
+        //        for (int j = 0; j < 4; j++)
+        //        {
+        //            evalPop[j] = population[i + j];
+        //        }
+
+        //    }
+        //}
+
+        static byte[][] knownCards2Chance;
+        static byte[][][][][] knownCards5Chance;
+        static byte[][][][][][] knownCards6Chance;
+        static byte[][][][][][][] knownCards7Chance;
 
         public static void InstantiateDynamicArrays()
         {
@@ -81,7 +193,6 @@ namespace cardOddsSimulator
                     }
                 }
             }
-
             int d = 0;
             knownCards6Chance = new byte[47][][][][][];
             for (int i = 0; i < knownCards6Chance.Length; i++)
@@ -136,10 +247,8 @@ namespace cardOddsSimulator
 
         public static int[] PlayRounds(double[][][] networks)
         {
-
             List<Card> board = new List<Card>();
             List<Card> deck = CreateDeckList();
-            
 
             Card[][] playerCards = new Card[4][];
 
@@ -167,11 +276,10 @@ namespace cardOddsSimulator
             int i;
             int j;
 
-            for (int h = 0; h < 10; h++)
+            for (int h = 0; h < 100000; h++)
             {
                 playerCount = 4;
                 deck = CreateDeckList();
-                board.Clear();
                 dealer++;
                 allowHigherBet = true;
                 playerBet = new int[playerBet.Length];
@@ -274,7 +382,6 @@ namespace cardOddsSimulator
                         }
                     }
                 }
-
                 List<int> indexToGive = new List<int>{0};
                 int bestScore = -1;
                 for (int k = 0; k < playerIndexArray.Length; k++)
@@ -305,7 +412,7 @@ namespace cardOddsSimulator
             return playerBalance;
         }
 
-        public static int GetBet(double[][] player, int balance, Card[] b, Card[] p, int bet, int playerCount, int round, int highBet)
+        static int GetBet(double[][] player, int balance, Card[] b, Card[] p, int bet, int playerCount, int round, int highBet)
         {
             List<Card> cards = new List<Card>(b);
             cards.AddRange(p);
@@ -313,8 +420,8 @@ namespace cardOddsSimulator
             double winChance = ChanceOfWin(cards.ToArray());
             int balanceBeforeBet = balance + bet;
             double[] inputs = new double[5];
-            inputs[0] = (double)bet / balanceBeforeBet;
-            inputs[1] = (double)highBet / balanceBeforeBet;
+            inputs[0] = bet / balanceBeforeBet;
+            inputs[1] = highBet / balanceBeforeBet;
             inputs[2] = winChance;
             inputs[3] = playerCount;
             inputs[4] = round;
@@ -333,7 +440,7 @@ namespace cardOddsSimulator
             return (int)(NeuralNet.FeedForward(inputs, player)[0] * balanceBeforeBet);
         }
 
-        public static double ChanceOfWin(Card[] cards)
+        static double ChanceOfWin(Card[] cards)
         {
             int i = 0;
             if (cards.Length == 2)
@@ -390,7 +497,7 @@ namespace cardOddsSimulator
             return s;
         }
 
-        public static int SimulateChanceOfWinning(Card[] cards)
+        static int SimulateChanceOfWinning(Card[] cards)
         {
             int wins = 0;
             Card[][] players = new Card[4][];
@@ -526,6 +633,20 @@ namespace cardOddsSimulator
                 }
             }
             return deck;
+        }
+
+        static long Combinations(int n, int r)
+        {
+            long result = 1;
+            for (int i = n; i > (n - r); i--)
+            {
+                result *= i;
+            }
+            for (int i = 1; i <= r; i++)
+            {
+                result /= i;
+            }
+            return result;
         }
 
         /// <summary>

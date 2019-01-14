@@ -10,7 +10,7 @@ namespace Visualization
     {
         public static List<Card> Shuffle(this List<Card> d)
         {
-            System.Random rng = new Random();
+            Random rng = new Random();
 
             int n = d.Count;
             while (n > 1)
@@ -31,6 +31,11 @@ namespace Visualization
 
             d.Remove(c);
             return c;
+        }
+
+        public static Card ToMarcusCard(this cardOddsSimulator.FitnessFunction.Card c)
+        {
+            return new Card((Card.CardSuit)c.suit, c.denomination);
         }
     }
 }
