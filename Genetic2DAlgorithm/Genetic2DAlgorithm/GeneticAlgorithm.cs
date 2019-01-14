@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using PokerNet;
 using cardOddsSimulator;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace Genetic2DAlgorithm
 {
@@ -27,7 +28,7 @@ namespace Genetic2DAlgorithm
             return random.Value.NextDouble();
         }
     }
-
+    
     class GeneticAlgorithm
     {
         static readonly double mutationValue = 0.009;//The +- multiplier
@@ -42,14 +43,14 @@ namespace Genetic2DAlgorithm
         static void Main(string[] args)
         {
             FitnessFunction.InstantiateDynamicArrays();
-            //FitnessFunction.PlayRounds();
+            //Serialize(FitnessFunction.knownCards2Chance, "C:\\GymnasieProjekt\\Data2.txt");
             //temp = DeSerializePlayer("C:\\GymnasieProjekt\\test2.txt");//GeneratePopulation(1, 5, 5, 3, 1, -100, 100)[0];
             double[][][] pop;
             double[][] best = null;//DeSerializePlayer("C:\\GymnasieProjekt\\test1.txt");
             for (int i = 0; i < 100000; i++)
             {
 
-                pop = EvolveWithIslandClustersThreaded(1000, 10, 100, 500, GetFitness, best);//här
+                pop = EvolveWithIslandClustersThreaded(1000, 12, 100, 500, GetFitness, best);//här
 
                 if (true)//i % 50 == 0)
                 {
@@ -61,10 +62,46 @@ namespace Genetic2DAlgorithm
                     {
                         bestFitness = Math.Max(fitness[e], bestFitness);
                     }
-
+                    Console.WriteLine(bestFitness);
                     //Console.WriteLine((-(bestFitness - 8000)).ToString() + " : " + (-(bestFitness - 8000)/connections).ToString());
                 }
             }
+        }
+
+        static void Serialize(Array obj, string path)
+        {
+            byte[] b = ObjectToByteArray(obj);
+            char[] s = new char[b.Length];
+            Buffer.BlockCopy(b, 0, s, 0, s.Length);
+            StreamWriter writer = new StreamWriter(path);
+            writer.Write(new string(s));
+            writer.Close();
+        }
+
+        static byte[] ObjectToByteArray(object obj)
+        {
+            if (obj == null)
+                return null;
+            BinaryFormatter bf = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
+        static long Combinations(int n, int r)
+        {
+            long result = 1;
+            for (int i = n; i > (n - r); i--)
+            {
+                result *= i;
+            }
+            for (int i = 1; i <= r; i++)
+            {
+                result /= i;
+            }
+            return result;
         }
 
         static double[] GetFitness(double[][][] pop)

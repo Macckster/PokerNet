@@ -163,10 +163,10 @@ namespace cardOddsSimulator
         //    }
         //}
 
-        static byte[][] knownCards2Chance;
-        static byte[][][][][] knownCards5Chance;
-        static byte[][][][][][] knownCards6Chance;
-        static byte[][][][][][][] knownCards7Chance;
+        public static byte[][] knownCards2Chance;
+        public static byte[][][][][] knownCards5Chance;
+        public static byte[][][][][][] knownCards6Chance;
+        public static byte[][][][][][][] knownCards7Chance;
 
         public static void InstantiateDynamicArrays()
         {
@@ -247,8 +247,10 @@ namespace cardOddsSimulator
 
         public static int[] PlayRounds(double[][][] networks)
         {
+
             List<Card> board = new List<Card>();
             List<Card> deck = CreateDeckList();
+            
 
             Card[][] playerCards = new Card[4][];
 
@@ -276,10 +278,11 @@ namespace cardOddsSimulator
             int i;
             int j;
 
-            for (int h = 0; h < 100000; h++)
+            for (int h = 0; h < 10; h++)
             {
                 playerCount = 4;
                 deck = CreateDeckList();
+                board.Clear();
                 dealer++;
                 allowHigherBet = true;
                 playerBet = new int[playerBet.Length];
@@ -633,20 +636,6 @@ namespace cardOddsSimulator
                 }
             }
             return deck;
-        }
-
-        static long Combinations(int n, int r)
-        {
-            long result = 1;
-            for (int i = n; i > (n - r); i--)
-            {
-                result *= i;
-            }
-            for (int i = 1; i <= r; i++)
-            {
-                result /= i;
-            }
-            return result;
         }
 
         /// <summary>
