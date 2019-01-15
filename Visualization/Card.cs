@@ -79,6 +79,18 @@ namespace Visualization
 
             return cards.Shuffle();
         }
+
+        public static List<Card> GenerateDeck(Card[] remcards)
+        {
+            List<Card> cards = AllCards.Values.ToList();
+
+            foreach (Card c in remcards)
+            {
+                cards.Remove(c);
+            }
+
+            return cards.Shuffle();
+        }
     }
 
     class Card
@@ -124,11 +136,6 @@ namespace Visualization
         public Card()
         {
 
-        }
-
-        public cardOddsSimulator.FitnessFunction.Card ToLucasCards()
-        {
-            return new cardOddsSimulator.FitnessFunction.Card((cardOddsSimulator.FitnessFunction.CardSuit)suit, denomination);
         }
 
         public static implicit operator Image(Card v) { return v.Image; }

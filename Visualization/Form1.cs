@@ -814,10 +814,10 @@ namespace Visualization
         {
             int wins = 0;
             Card[][] players = new Card[4][];
-            cardOddsSimulator.FitnessFunction.Card[] board = new cardOddsSimulator.FitnessFunction.Card[5];
+            Card[] board = new Card[5];
             for (int i = 2; i < cards.Length; i++)
             {
-                board[i - 2] = cards[i].ToLucasCards();
+                board[i - 2] = cards[i];
             }
             for (int i = 0; i < 4; i++)
             {
@@ -828,7 +828,7 @@ namespace Visualization
 
             for (int i = 0; i < gameAmount; i++)
             {
-                List<cardOddsSimulator.FitnessFunction.Card> deck = CreateDeckList(cards);
+                List<Card> deck = CreateDeckList(cards);
 
                 for (int j = cards.Length - 2; j < board.Length; j++)
                 {
@@ -839,7 +839,7 @@ namespace Visualization
                 {
                     for (int k = 0; k < 2; k++)
                     {
-                        players[j][k] = DrawCardFormDeckList(ref deck).ToMarcusCard();
+                        players[j][k] = DrawCardFormDeckList(ref deck);
                     }
                 }
 
@@ -849,7 +849,7 @@ namespace Visualization
                     Card[] c = new Card[7];
                     for (int k = 2; k < c.Length; k++)
                     {
-                        c[k] = board[k - 2].ToMarcusCard();
+                        c[k] = board[k - 2];
                     }
                     c[0] = players[j][0];
                     c[1] = players[j][1];
@@ -870,31 +870,15 @@ namespace Visualization
             return wins;// / games;
         }
 
-        static List<cardOddsSimulator.FitnessFunction.Card> CreateDeckList(Card[] cards)
+        static List<Card> CreateDeckList(Card[] cards)
         {
-            List<cardOddsSimulator.FitnessFunction.Card> deck = new List<cardOddsSimulator.FitnessFunction.Card>();
-            for (int i = 0; i < 4; i++)
-            {
-                for (int j = 1; j < 14; j++)
-                {
-                    cardOddsSimulator.FitnessFunction.Card newCard = new cardOddsSimulator.FitnessFunction.Card((cardOddsSimulator.FitnessFunction.CardSuit)i, j);
-                    bool add = true;
-                    for (int k = 0; k < cards.Length; k++)
-                    {
-                        if (newCard.id == cards[k].id)
-                            add = false;
-                    }
-                    if (add)
-                        deck.Add(newCard);
-                }
-            }
-            return deck;
+            return Deck.GenerateDeck(cards);
         }
 
-        static cardOddsSimulator.FitnessFunction.Card DrawCardFormDeckList(ref List<cardOddsSimulator.FitnessFunction.Card> deck)
+        static Card DrawCardFormDeckList(ref List<Card> deck)
         {
             int r = StaticRandom.Next(0, deck.Count);
-            cardOddsSimulator.FitnessFunction.Card c = deck[r];
+            Card c = deck[r];
             deck.RemoveAt(r);
             return c;
         }
