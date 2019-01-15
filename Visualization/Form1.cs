@@ -477,6 +477,11 @@ namespace Visualization
                     , winners[1] == 0 ? "You" : "AI", winners[2], winners[2] == 0 ? "You" : "AI", prize);
             }
 
+            if (winners.Count == 4)
+            {
+                Log("Everyone is a winner! Y'all get {0}", prize);
+            }
+
             foreach (int winner in winners)
             {
                 Balance[winner] += prize;
