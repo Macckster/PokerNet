@@ -5,6 +5,7 @@ using Microsoft.VisualBasic;
 using System.IO;
 using System.Linq;
 using PokerNet;
+using System.Xml.Serialization;
 
 namespace Visualization
 {
@@ -25,7 +26,7 @@ namespace Visualization
 
         static int gameAmount = 500;
 
-        string weightsPath = "";
+        string weightsPath = "C:\\GymnasieProjekt\\network.xml";
         double[][] weights;
 
         int RoundCounter = 0;
@@ -56,7 +57,7 @@ namespace Visualization
 
         public Form1()
         {
-            //weights = GetWeights(weightsPath);
+            weights = GetWeights(weightsPath);
             InitializeComponent();
         }
 
@@ -243,8 +244,9 @@ namespace Visualization
                             counter++;
                         }
                     }
-
-                    playerbet = (int)NeuralNet.FeedForward(new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i],SimulateChanceOfWinning(PlayerCards[i].Concat(CommunityCards).ToArray()), counter, RoundCounter }, weights)[0];
+                    double[] inputs = new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i], SimulateChanceOfWinning(PlayerCards[i].Concat(CommunityCards).ToArray()) / 500, counter, RoundCounter };
+                    var k = NeuralNet.FeedForward(inputs, weights);
+                    playerbet = (int)NeuralNet.FeedForward(inputs, weights)[0];
                 }
 
                 if (playerbet == -1)
@@ -339,24 +341,14 @@ namespace Visualization
 
         double[][] GetWeights(string path)
         {
-            StreamReader reader = new StreamReader(path);
+            XmlSerializer serializer = new XmlSerializer(typeof(double[][]));
 
-            string player = reader.ReadToEnd();
-            string[] comparted = player.Split(';');
-            double[][] returnPlayer = new double[comparted.Length - 1][];
-            for (int i = 0; i < comparted.Length - 1; i++)
-            {
-                string[] compartedLayer2 = comparted[i].Split(',');
-                returnPlayer[i] = new double[compartedLayer2.Length];
-                for (int f = 0; f < compartedLayer2.Length; f++)
-                {
-                    string d = compartedLayer2[f];
-                    returnPlayer[i][f] = double.Parse(d);
-                }
-            }
+            StreamReader reader = new StreamReader(path);
+            double[][] ret = (double[][])serializer.Deserialize(reader);
             reader.Close();
-            return returnPlayer;
+            return ret;
         }
+
 
         void Log(object message, params object[] obj)
         {

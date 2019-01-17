@@ -9,6 +9,8 @@ using System.IO;
 using PokerNet;
 using cardOddsSimulator;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Genetic2DAlgorithm
 {
@@ -56,7 +58,7 @@ namespace Genetic2DAlgorithm
                 {
                     double[] fitness = GetFitness(pop);
                     best = FindBestPlayer(pop, fitness);
-                    SerializePlayer(best, "C:\\GymnasieProjekt\\test1.txt");
+                    SerializePlayer(best, "C:\\GymnasieProjekt\\test1.xml");
                     double bestFitness = 0;
                     for (int e = 0; e < fitness.Length; e++)
                     {
@@ -131,17 +133,20 @@ namespace Genetic2DAlgorithm
         static void SerializePlayer(double[][] playerToSerialize, string path)
         {
             StreamWriter stream = new StreamWriter(path);
-            string s = "";
-            for (int i = 0; i < playerToSerialize.Length; i++)
+
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(double[][]));
+            var xml = "";
+
+            using (var sww = new StringWriter())
             {
-                string line = "";
-                for (int e = 0; e < playerToSerialize[i].Length; e++)
+                using (XmlWriter writer = XmlWriter.Create(sww))
                 {
-                    line += playerToSerialize[i][e].ToString() + ((e + 1 == playerToSerialize[i].Length) ? "" : ",");
+                    xsSubmit.Serialize(writer, playerToSerialize);
+                    xml = sww.ToString(); // Your XML
                 }
-                s += line + ";";
             }
-            stream.Write(s);
+
+            stream.Write(xml);
             stream.Close();
         }
         /// <summary>
@@ -151,23 +156,12 @@ namespace Genetic2DAlgorithm
         /// <returns>returns the player</returns>
         static double[][] DeSerializePlayer(string path)
         {
-            StreamReader reader = new StreamReader(path);
+            XmlSerializer serializer = new XmlSerializer(typeof(double[][]));
 
-            string player = reader.ReadToEnd();
-            string[] comparted = player.Split(';');
-            double[][] returnPlayer = new double[comparted.Length - 1][];
-            for (int i = 0; i < comparted.Length - 1; i++)
-            {
-                string[] compartedLayer2 = comparted[i].Split(',');
-                returnPlayer[i] = new double[compartedLayer2.Length];
-                for (int f = 0; f < compartedLayer2.Length; f++)
-                {
-                    string d = compartedLayer2[f];
-                    returnPlayer[i][f] = double.Parse(d);
-                }
-            }
+            StreamReader reader = new StreamReader(path);
+            double[][] ret = (double[][])serializer.Deserialize(reader);
             reader.Close();
-            return returnPlayer;
+            return ret;
         }
         /// <summary>
         /// Creates and evolves new population using island technic

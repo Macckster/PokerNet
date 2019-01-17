@@ -9,7 +9,7 @@ namespace PokerNet
     public static class NetSettings
      {
           public static int fitnessRounds = 12;
-          public static int inputNodeCount = 4;
+          public static int inputNodeCount = 5;
           public static int outPutNodeCount = 1;
           public static double minWeight = -6;
           public static double maxWeight = 6;
