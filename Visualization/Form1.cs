@@ -26,7 +26,7 @@ namespace Visualization
 
         static int gameAmount = 500;
 
-        string weightsPath = "C:\\GymnasieProjekt\\network.xml";
+        string weightsPath = "test1.xml";
         double[][] weights;
 
         int RoundCounter = 0;
@@ -244,12 +244,11 @@ namespace Visualization
                             counter++;
                         }
                     }
-                    double[] inputs = new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i], SimulateChanceOfWinning(PlayerCards[i].Concat(CommunityCards).ToArray()) / 500, counter, RoundCounter };
-                    var k = NeuralNet.FeedForward(inputs, weights);
-                    playerbet = (int)NeuralNet.FeedForward(inputs, weights)[0];
+                    double[] inputs = new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i], (double)SimulateChanceOfWinning(PlayerCards[i].Concat(CommunityCards).ToArray()) / 500, counter, RoundCounter };
+                    playerbet = (int)(NeuralNet.FeedForward(inputs, weights)[0] * Balance[i]);
                 }
 
-                if (playerbet == -1)
+                if (playerbet == -1 || playerbet < targetBet)
                 {
                     folded[i] = true;
                     Log("Player {0} ({1}) folded", i, i == 0 ? "You" : "AI");
