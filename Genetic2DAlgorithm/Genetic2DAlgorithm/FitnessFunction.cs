@@ -355,9 +355,9 @@ namespace cardOddsSimulator
                     knownCards6Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1] = wins;
                 else if (cards.Length == 7)
                     knownCards7Chance[cards[0].id][cards[1].id - cards[0].id - 1][cards[2].id - cards[1].id - 1][cards[3].id - cards[2].id - 1][cards[4].id - cards[3].id - 1][cards[5].id - cards[4].id - 1][cards[6].id - cards[5].id - 1] = wins;
-                return (wins - 1) / games;
+                return (double)(wins - 1) / games;
             }
-            return (float)(i - 1) / games;
+            return (double)(i - 1) / games;
         }
 
         static int[] GetPlayers(int[] playerBalance)
