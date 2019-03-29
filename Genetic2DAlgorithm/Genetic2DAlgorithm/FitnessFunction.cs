@@ -195,6 +195,12 @@ namespace cardOddsSimulator
                     playerCards[k][1] = DrawCardFormDeckList(ref deck);
                 }
 
+                int minBalance = 100000;
+                for (int b = 0; b < playerBalance.Length; b++)
+                {
+                    minBalance = Math.Min(playerBalance[b], minBalance);
+                }
+
                 //Round for loop
                 for (i = 0; i < 4; i++)
                 {
@@ -240,7 +246,7 @@ namespace cardOddsSimulator
                                 playerCount,
                                 i,
                                 highestCurrentBet);
-
+                            bet = Math.Min(bet, minBalance);
                             if (bet <= playerBalance[playerIndexArray[PlayerIndex]])
                             {
                                 if (!allowHigherBet)
