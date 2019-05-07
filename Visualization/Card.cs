@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Drawing;
 
-namespace Visualization
+namespace BetGuide
 {
     class Deck
     {
@@ -64,7 +64,7 @@ namespace Visualization
                         break;
                 }
 
-                AllCards.Add(name, new Card(new Bitmap(s), name, value, suit));
+                AllCards.Add(name, new Card(name, value, suit));
             }
         }
 
@@ -103,28 +103,73 @@ namespace Visualization
             Spades = 3//3
         }
 
-        public Bitmap Image;
         private string name;
 
         public int denomination;
         public CardSuit suit;
 
-        public int id { get { return (int)suit * 13 + denomination - 1; }}
+        public int id { get { return (int)suit * 13 + denomination - 1; } }
 
-        public Card(Bitmap image, string name, int denomination, CardSuit suit) : this(image, name)
+        public Card[] FromString(string cards)
+        {
+            string[] cardArray = cards.Split();
+
+            List<Card> deck = new List<Card>();
+
+            foreach (string s in cardArray)
+            {
+                deck.Add(new Card(s));
+            }
+        }
+
+        public Card(string name, int denomination, CardSuit suit) : this(name)
         {
             this.denomination = denomination;
             this.suit = suit;
         }
 
-        public Card(Bitmap image, string name) : this(image)
+        public Card(string name)
         {
-            this.name = name;
-        }
+            char suitChar = name[name.Length - 1];
+            string den = name.Remove(name.Length - 1);
 
-        public Card(Bitmap image)
-        {
-            Image = image;
+            Card.CardSuit suit = Card.CardSuit.Clubs;
+
+            switch (suitChar)
+            {
+                case 'h':
+                    suit = Card.CardSuit.Heart;
+                    break;
+                case 'd':
+                    suit = Card.CardSuit.Diamond;
+                    break;
+                case 's':
+                    suit = Card.CardSuit.Spades;
+                    break;
+            }
+
+            int value = 0;
+
+            switch (den)
+            {
+                case "A":
+                    value = 1;
+                    break;
+                case "J":
+                    value = 11;
+                    break;
+                case "Q":
+                    value = 12;
+                    break;
+                case "K":
+                    value = 13;
+                    break;
+                default:
+                    value = int.Parse(den);
+                    break;
+            }
+
+            return new Card(name, value, suit);
         }
 
         public Card(CardSuit suit, int denomination)
@@ -138,7 +183,6 @@ namespace Visualization
 
         }
 
-        public static implicit operator Image(Card v) { return v.Image; }
         public static implicit operator string(Card v) { return v.ToString(); }
 
         public override string ToString()

@@ -57,7 +57,7 @@ namespace Visualization
 
         public Form1()
         {
-            weights = GetWeights(weightsPath);
+            //weights = GetWeights(weightsPath);
             InitializeComponent();
         }
 
@@ -245,7 +245,6 @@ namespace Visualization
                         }
                     }
                     double[] inputs = new double[] { (double)bets[i] / Balance[i], (double)targetBet / Balance[i], (double)SimulateChanceOfWinning(PlayerCards[i].Concat(CommunityCards).ToArray()) / 500, counter, RoundCounter };
-                    var k = NeuralNet.FeedForward(inputs, weights);
                     playerbet = (int)(NeuralNet.FeedForward(inputs, weights)[0]*Balance[i]);
                 }
 
@@ -335,8 +334,14 @@ namespace Visualization
             {
                 return -1;
             }
-
-            return int.Parse(response);
+            try
+            {
+                return int.Parse(response);
+            }
+            catch (Exception)
+            {
+                return GetPlayerBet();
+            }
         }
 
         double[][] GetWeights(string path)
