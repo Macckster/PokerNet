@@ -26,10 +26,13 @@ namespace BetGuide
             int remainingPlayers = int.Parse(Query("Enter amount of players left"));
             int roundNumber = int.Parse(Query("Enter round number"));
 
-            double[] input = { (double)currentBet / balance, (double)requiredBet / balance, SimulateChanceOfWinning(Card.fromStringArr(cards.Split())), remainingPlayers, roundNumber};
+            double[] input = { (double)currentBet / balance, (double)requiredBet / balance, (double)SimulateChanceOfWinning(Card.fromStringArr(cards.Split())) / 500, remainingPlayers, roundNumber};
             double[][] weights = GetWeights("network.xml");
 
-            Console.WriteLine((int)(NeuralNet.FeedForward(input, weights)[0] * balance));
+            double res = (NeuralNet.FeedForward(input, weights)[0]);
+
+            Console.WriteLine(res * balance);
+            Console.ReadKey();
         }
 
         static string Query(string q)
@@ -50,24 +53,22 @@ namespace BetGuide
 
         static List<Card> CreateDeckList(Card[] cards)
         {
-            Card[] deck = new Card[52 - cards.Length];
-
-            int counter = 0;
-
+            List<Card> deck = new List<Card>();
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 1; j < 14; j++)
                 {
                     Card newCard = new Card((Card.CardSuit)i, j);
-
-                    if (!cards.Contains(newCard))
-                    {
-                        deck[counter] = newCard;
-                        counter++;
-                    }
+                    deck.Add(newCard);
                 }
             }
-            return deck.ToList<Card>();
+
+            foreach (Card c in cards)
+            {
+                deck.Remove(c);
+            }
+
+            return deck;
         }
 
         static int SimulateChanceOfWinning(Card[] cards)
